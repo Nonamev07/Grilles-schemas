@@ -43,7 +43,7 @@ body {
 <script>
 const SUPABASE_URL = "https://mrgmnarzxuursfftqwjy.supabase.co";
 const SUPABASE_KEY = "sb_publishable_NRM0OYkc4C5rjUxGKruR6A_y-iKPNRm";
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const players = ["REGULUS","FOX","Cress","Noname"];
 
@@ -60,23 +60,18 @@ const blueprints = [
   ["80px-Yellow_Light_Stick.png.webp","80px-Deadline.png.webp",null,null,null,null,null]
 ];
 
-// 🔹 charge l'état
 async function loadChecked(player, cell) {
-  const { data } = await supabase
+  const { data } = await sb
     .from("cases")
     .select("checked")
     .eq("player", player)
     .eq("cell", cell)
     .maybeSingle();
-
   return data ? data.checked : false;
 }
 
-// 🔹 sauvegarde (check + uncheck)
 async function saveChecked(player, cell, checked) {
-  await supabase
-    .from("cases")
-    .upsert({ player, cell, checked });
+  await sb.from("cases").upsert({ player, cell, checked });
 }
 
 (async () => {
@@ -115,19 +110,6 @@ async function saveChecked(player, cell, checked) {
       }
     }
   }
-
-  // 🔹 temps réel
-  supabase.channel("cases-live")
-    .on("postgres_changes", { event:"*", schema:"public", table:"cases" }, payload => {
-      const { player, cell, checked } = payload.new;
-      document.querySelectorAll(".player").forEach(p => {
-        if (p.querySelector("h3").innerText === player) {
-          const c = p.querySelectorAll(".cell")[cell];
-          if (c) c.style.opacity = checked ? "0.4" : "1";
-        }
-      });
-    })
-    .subscribe();
 })();
 </script>
 
