@@ -3,50 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <title>Arc Raiders – Blueprints</title>
-
 <style>
-body {
-  background:#222;
-  color:white;
-  font-family:sans-serif;
-  display:flex;
-  flex-wrap:wrap;
-  gap:40px;
-  justify-content:center;
-}
-
-.player {
-  text-align:center;
-}
-
-.grid {
-  display:grid;
-  grid-template-columns: repeat(10, 64px);
-  gap:2px;
-}
-
-.cell {
-  width:64px;
-  height:64px;
-  background-image:url("imagesschémasAcRaiders/100px-UI_Blueprint_background.png.webp");
-  background-size:cover;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-.cell img {
-  max-width:90%;
-  max-height:90%;
-}
+body { background:#222; color:white; font-family:sans-serif; display:flex; flex-wrap:wrap; gap:40px; justify-content:center; }
+.player { text-align:center; }
+.grid { display:grid; grid-template-columns: repeat(10, 64px); gap:2px; }
+.cell { width:64px; height:64px; background-image:url("imagesschémasAcRaiders/100px-UI_Blueprint_background.png.webp"); background-size:cover; display:flex; align-items:center; justify-content:center; }
+.cell img { max-width:90%; max-height:90%; }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
 </head>
-
 <body>
 
 <script>
-const players = ["REGULUS","FOX","Cress","Noname"];
+const SUPABASE_URL = 'https://mrgmnarzxuursfftqwjy.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_NRM0OYkc4C5rjUxGKruR6A_y-iKPNRm';
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+const players = ["REGULUS","FOX","Cress","Noname"];
 const blueprints = [
   ["80px-Bettina.png.webp","80px-Blue_Light_Stick.png.webp","80px-Aphelion.png.webp","80px-Combat_Mk._3_(Flanking).png.webp","80px-Combat_Mk._3_(Aggressive).png.webp","80px-Complex_Gun_Parts.png.webp","80px-Fireworks_Box.png.webp","80px-Gas_Mine.png.webp"],
   ["80px-Green_Light_Stick.png.webp","80px-Pulse_Mine.png.webp","80px-Seeker_Grenade.png.webp","80px-Looting_Mk._3_(Survivor).png.webp","80px-Angled_Grip_II.png.webp","80px-Angled_Grip_III.png.webp","80px-Hullcracker-Level1.png.webp","80px-Anvil-Level1.png.webp"],
@@ -60,31 +33,26 @@ const blueprints = [
   ["80px-Yellow_Light_Stick.png.webp","80px-Deadline.png.webp",null,null,null,null,null]
 ];
 
-async function loadState() {
-  const res = await fetch("/api/state");
-  return await res.json();
+async function loadState(player, index) {
+  const { data } = await supabase.from('cases').select('checked').eq('player', player).eq('cell', index).single();
+  return data ? data.checked : false;
 }
 
-async function saveState(state) {
-  await fetch("/api/state", {
-    method: "POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify(state)
-  });
+async function saveState(player, index, checked) {
+  await supabase.from('cases').upsert({ player, cell: index, checked });
 }
 
 (async () => {
-  const state = await loadState();
-
-  players.forEach(player => {
+  for (let p = 0; p < players.length; p++) {
+    const player = players[p];
     const box = document.createElement("div");
     box.className = "player";
     box.innerHTML = `<h3>${player}</h3><div class="grid"></div>`;
     document.body.appendChild(box);
 
     const grid = box.querySelector(".grid");
-
     let index = 0;
+
     for (let row = 0; row < 8; row++) {
       for (let col = 0; col < 10; col++) {
         const cell = document.createElement("div");
@@ -97,24 +65,35 @@ async function saveState(state) {
           cell.appendChild(img);
         }
 
-        if (state[player][index]) {
-          cell.style.opacity = "0.4";
-        }
+        cell.dataset.player = player;
+        cell.dataset.index = index;
 
         cell.onclick = async () => {
-          state[player][index] = !state[player][index];
-          cell.style.opacity = state[player][index] ? "0.4" : "1";
-          await saveState(state);
+          const checked = !(await loadState(player, index));
+          cell.style.opacity = checked ? "0.4" : "1";
+          await saveState(player, index, checked);
         };
+
+        const checked = await loadState(player, index);
+        cell.style.opacity = checked ? "0.4" : "1";
 
         grid.appendChild(cell);
         index++;
       }
     }
-  });
+  }
+
+  // Realtime
+  supabase.channel('public:cases')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'cases' }, payload => {
+      const { player, cell, checked } = payload.new;
+      document.querySelectorAll(`.cell[data-player="${player}"][data-index="${cell}"]`).forEach(c => {
+        c.style.opacity = checked ? "0.4" : "1";
+      });
+    })
+    .subscribe();
 })();
 </script>
-
 
 </body>
 </html>
