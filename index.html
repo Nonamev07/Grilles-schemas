@@ -5,11 +5,35 @@
 <title>Arc Raiders – Blueprints</title>
 
 <style>
-body { background:#222; color:white; font-family:sans-serif; display:flex; flex-wrap:wrap; gap:40px; justify-content:center; }
+body {
+  background:#222;
+  color:white;
+  font-family:sans-serif;
+  display:flex;
+  flex-wrap:wrap;
+  gap:40px;
+  justify-content:center;
+}
 .player { text-align:center; }
-.grid { display:grid; grid-template-columns: repeat(10, 64px); gap:2px; }
-.cell { width:64px; height:64px; background-image:url("imagesschémasAcRaiders/100px-UI_Blueprint_background.png.webp"); background-size:cover; display:flex; align-items:center; justify-content:center; cursor:pointer; }
-.cell img { max-width:90%; max-height:90%; }
+.grid {
+  display:grid;
+  grid-template-columns: repeat(10, 64px);
+  gap:2px;
+}
+.cell {
+  width:64px;
+  height:64px;
+  background-image:url("imagesschémasAcRaiders/100px-UI_Blueprint_background.png.webp");
+  background-size:cover;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+}
+.cell img {
+  max-width:90%;
+  max-height:90%;
+}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -24,19 +48,20 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const players = ["REGULUS","FOX","Cress","Noname"];
 
 const blueprints = [
- ["80px-Bettina.png.webp","80px-Blue_Light_Stick.png.webp","80px-Aphelion.png.webp","80px-Combat_Mk._3_(Flanking).png.webp","80px-Combat_Mk._3_(Aggressive).png.webp","80px-Complex_Gun_Parts.png.webp","80px-Fireworks_Box.png.webp","80px-Gas_Mine.png.webp"],
- ["80px-Green_Light_Stick.png.webp","80px-Pulse_Mine.png.webp","80px-Seeker_Grenade.png.webp","80px-Looting_Mk._3_(Survivor).png.webp","80px-Angled_Grip_II.png.webp","80px-Angled_Grip_III.png.webp","80px-Hullcracker-Level1.png.webp","80px-Anvil-Level1.png.webp"],
- ["80px-Barricade_Kit.png.webp","80px-Blaze_Grenade.png.webp","80px-Bobcat-Level1.png.webp","80px-Osprey-Level1.png.webp","80px-Burletta-Level1.png.webp","80px-Compensator_II.png.webp","80px-Compensator_III.png.webp","80px-Defibrillator.png.webp"],
- ["80px-Equalizer.png.webp","80px-Extended_Barrel.png.webp","80px-Extended_Light_Mag_II.png.webp","80px-Extended_Light_Mag_III.png.webp","80px-Extended_Medium_Mag_II.png.webp","80px-Extended_Medium_Mag_III.png.webp","80px-Extended_Shotgun_Mag_II.png.webp","80px-Extended_Shotgun_Mag_III.png.webp"],
- ["80px-Remote_Raider_Flare.png.webp","80px-Heavy_Gun_Parts.png.webp","80px-Venator-Level1.png.webp","80px-Il_Toro-Level1.png.webp","80px-Jolt_Mine.png.webp","80px-Explosive_Mine.png.webp","80px-Jupiter.png.webp","80px-Light_Gun_Parts.png.webp"],
- ["80px-Lightweight_Stock.png.webp","80px-Lure_Grenade.png.webp","80px-Medium_Gun_Parts.png.webp","80px-Torrente-Level1.png.webp","80px-Muzzle_Brake_II.png.webp","80px-Muzzle_Brake_III.png.webp","80px-Padded_Stock.png.webp"],
- ["80px-Shotgun_Choke_II.png.webp","80px-Shotgun_Choke_III.png.webp","80px-Shotgun_Silencer.png.webp","80px-Showstopper.png.webp","80px-Silencer_I.png.webp","80px-Silencer_II.png.webp","80px-Smoke_Grenade.png.webp"],
- ["80px-Snap_Hook.png.webp","80px-Stable_Stock_II.png.webp","80px-Stable_Stock_III.png.webp","80px-Tactical_Mk._3_(Defensive).png.webp","80px-Tactical_Mk._3_(Healing).png.webp","80px-Tagging_Grenade.png.webp","80px-Tempest-Level1.png.webp"],
- ["80px-Trailblazer.png.webp","80px-Trigger_Nade.png.webp","80px-Vita_Shot.png.webp","80px-Vita_Spray.png.webp","80px-Vulcano-Level1.png.webp","80px-Wolfpack.png.webp","80px-Red_Light_Stick.png.webp"],
- ["80px-Yellow_Light_Stick.png.webp","80px-Deadline.png.webp",null,null,null,null,null]
+  ["80px-Bettina.png.webp","80px-Blue_Light_Stick.png.webp","80px-Aphelion.png.webp","80px-Combat_Mk._3_(Flanking).png.webp","80px-Combat_Mk._3_(Aggressive).png.webp","80px-Complex_Gun_Parts.png.webp","80px-Fireworks_Box.png.webp","80px-Gas_Mine.png.webp"],
+  ["80px-Green_Light_Stick.png.webp","80px-Pulse_Mine.png.webp","80px-Seeker_Grenade.png.webp","80px-Looting_Mk._3_(Survivor).png.webp","80px-Angled_Grip_II.png.webp","80px-Angled_Grip_III.png.webp","80px-Hullcracker-Level1.png.webp","80px-Anvil-Level1.png.webp"],
+  ["80px-Barricade_Kit.png.webp","80px-Blaze_Grenade.png.webp","80px-Bobcat-Level1.png.webp","80px-Osprey-Level1.png.webp","80px-Burletta-Level1.png.webp","80px-Compensator_II.png.webp","80px-Compensator_III.png.webp","80px-Defibrillator.png.webp"],
+  ["80px-Equalizer.png.webp","80px-Extended_Barrel.png.webp","80px-Extended_Light_Mag_II.png.webp","80px-Extended_Light_Mag_III.png.webp","80px-Extended_Medium_Mag_II.png.webp","80px-Extended_Medium_Mag_III.png.webp","80px-Extended_Shotgun_Mag_II.png.webp","80px-Extended_Shotgun_Mag_III.png.webp"],
+  ["80px-Remote_Raider_Flare.png.webp","80px-Heavy_Gun_Parts.png.webp","80px-Venator-Level1.png.webp","80px-Il_Toro-Level1.png.webp","80px-Jolt_Mine.png.webp","80px-Explosive_Mine.png.webp","80px-Jupiter.png.webp","80px-Light_Gun_Parts.png.webp"],
+  ["80px-Lightweight_Stock.png.webp","80px-Lure_Grenade.png.webp","80px-Medium_Gun_Parts.png.webp","80px-Torrente-Level1.png.webp","80px-Muzzle_Brake_II.png.webp","80px-Muzzle_Brake_III.png.webp","80px-Padded_Stock.png.webp"],
+  ["80px-Shotgun_Choke_II.png.webp","80px-Shotgun_Choke_III.png.webp","80px-Shotgun_Silencer.png.webp","80px-Showstopper.png.webp","80px-Silencer_I.png.webp","80px-Silencer_II.png.webp","80px-Smoke_Grenade.png.webp"],
+  ["80px-Snap_Hook.png.webp","80px-Stable_Stock_II.png.webp","80px-Stable_Stock_III.png.webp","80px-Tactical_Mk._3_(Defensive).png.webp","80px-Tactical_Mk._3_(Healing).png.webp","80px-Tagging_Grenade.png.webp","80px-Tempest-Level1.png.webp"],
+  ["80px-Trailblazer.png.webp","80px-Trigger_Nade.png.webp","80px-Vita_Shot.png.webp","80px-Vita_Spray.png.webp","80px-Vulcano-Level1.png.webp","80px-Wolfpack.png.webp","80px-Red_Light_Stick.png.webp"],
+  ["80px-Yellow_Light_Stick.png.webp","80px-Deadline.png.webp",null,null,null,null,null]
 ];
 
-async function getState(player, cell) {
+// 🔹 charge l'état
+async function loadChecked(player, cell) {
   const { data } = await supabase
     .from("cases")
     .select("checked")
@@ -47,7 +72,8 @@ async function getState(player, cell) {
   return data ? data.checked : false;
 }
 
-async function saveState(player, cell, checked) {
+// 🔹 sauvegarde (check + uncheck)
+async function saveChecked(player, cell, checked) {
   await supabase
     .from("cases")
     .upsert({ player, cell, checked });
@@ -65,30 +91,43 @@ async function saveState(player, cell, checked) {
 
     for (let row = 0; row < 8; row++) {
       for (let col = 0; col < 10; col++) {
-        const cell = document.createElement("div");
-        cell.className = "cell";
+        const cellDiv = document.createElement("div");
+        cellDiv.className = "cell";
 
         const imgName = blueprints[col][row];
         if (imgName) {
           const img = document.createElement("img");
           img.src = "imagesschémasAcRaiders/" + imgName;
-          cell.appendChild(img);
+          cellDiv.appendChild(img);
         }
 
-        let checked = await getState(player, index);
-        cell.style.opacity = checked ? "0.4" : "1";
+        const checked = await loadChecked(player, index);
+        cellDiv.style.opacity = checked ? "0.4" : "1";
 
-        cell.onclick = async () => {
-          checked = !checked;
-          cell.style.opacity = checked ? "0.4" : "1";
-          await saveState(player, index, checked);
+        cellDiv.onclick = async () => {
+          const newValue = cellDiv.style.opacity !== "0.4";
+          cellDiv.style.opacity = newValue ? "0.4" : "1";
+          await saveChecked(player, index, newValue);
         };
 
-        grid.appendChild(cell);
+        grid.appendChild(cellDiv);
         index++;
       }
     }
   }
+
+  // 🔹 temps réel
+  supabase.channel("cases-live")
+    .on("postgres_changes", { event:"*", schema:"public", table:"cases" }, payload => {
+      const { player, cell, checked } = payload.new;
+      document.querySelectorAll(".player").forEach(p => {
+        if (p.querySelector("h3").innerText === player) {
+          const c = p.querySelectorAll(".cell")[cell];
+          if (c) c.style.opacity = checked ? "0.4" : "1";
+        }
+      });
+    })
+    .subscribe();
 })();
 </script>
 
