@@ -68,14 +68,14 @@ async function saveState(player, index, checked) {
         cell.dataset.player = player;
         cell.dataset.index = index;
 
-        cell.onclick = async () => {
-          const checked = !(await loadState(player, index));
-          cell.style.opacity = checked ? "0.4" : "1";
-          await saveState(player, index, checked);
-        };
-
         const checked = await loadState(player, index);
         cell.style.opacity = checked ? "0.4" : "1";
+
+        cell.onclick = async () => {
+          const newChecked = !(await loadState(player, index));
+          cell.style.opacity = newChecked ? "0.4" : "1";
+          await saveState(player, index, newChecked);
+        };
 
         grid.appendChild(cell);
         index++;
@@ -83,7 +83,6 @@ async function saveState(player, index, checked) {
     }
   }
 
-  // Realtime
   supabase.channel('public:cases')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'cases' }, payload => {
       const { player, cell, checked } = payload.new;
