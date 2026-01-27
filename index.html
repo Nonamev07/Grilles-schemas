@@ -97,20 +97,5 @@
       for(let i=0; i<nbCases; i++){
         const caseDiv = document.createElement('div');
         caseDiv.className = 'case';
-        // chaque case correspond à un blueprint
         const blueprintImage = blueprints[i];
-        caseDiv.addEventListener('click', () => {
-          // si case vide, mettre l'image ; si image déjà là, enlever
-          if(caseDiv.innerHTML === ''){
-            caseDiv.innerHTML = `<img src="blueprints/${blueprintImage}" alt="${blueprintImage}">`;
-          } else {
-            caseDiv.innerHTML = '';
-          }
-        });
-        grille.appendChild(caseDiv);
-      }
-    });
-  </script>
-
-</body>
-</html>
+        caseDiv.addEventListener('click', () =>
