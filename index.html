@@ -39,7 +39,7 @@ async function loadState(player, index) {
     .eq('player', player)
     .eq('cell', index)
     .maybeSingle();
-  return data ? data.checked : false;
+  return data;
 }
 
 async function saveAllStates(players, index, checked) {
@@ -52,7 +52,7 @@ async function saveAllStates(players, index, checked) {
   // Perform the upsert operation for all players
   const { data, error } = await supabaseClient
     .from('cases')
-    .upsert(updates, { onConflict: ['player', 'cell'] });
+    .upsert(updates);
 
   if (error) {
     console.error('Error saving states:', error);
@@ -87,16 +87,17 @@ async function saveAllStates(players, index, checked) {
         cell.dataset.player = player;
         cell.dataset.index = index;
 
-        const checked = await loadState(player, index);
-        cell.style.opacity = checked ? "0.4" : "1";
+        let checked = await loadState(player, index);
 
         cell.onclick = async () => {
-          const newChecked = !checked
-          cell.style.opacity = newChecked ? "0.4" : "1";
-          cell.dataset.index = index;
-          await saveAllStates(players, index, newChecked);
+            let newChecked = !checked;
+            cell.style.opacity = newChecked ? "0.4" : "1";
+            cell.dataset.index = index;
+            await saveAllStates(players, index, newChecked);
         };
 
+        cell.style.opacity = checked ? "0.4" : "1";
+        
         grid.appendChild(cell);
         index++;
       }
