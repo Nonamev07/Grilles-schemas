@@ -4,27 +4,10 @@
 <meta charset="UTF-8">
 <title>Arc Raiders – Blueprints</title>
 <style>
-body { 
-  background:#222; 
-  color:white; 
-  font-family:sans-serif; 
-  display:flex; 
-  flex-wrap:wrap; 
-  gap:40px; 
-  justify-content:center; 
-}
+body { background:#222; color:white; font-family:sans-serif; display:flex; flex-wrap:wrap; gap:40px; justify-content:center; }
 .player { text-align:center; }
 .grid { display:grid; grid-template-columns: repeat(10, 64px); gap:2px; }
-.cell { 
-  width:64px; 
-  height:64px; 
-  background-image:url("imagesschémasAcRaiders/100px-UI_Blueprint_background.png.webp"); 
-  background-size:cover; 
-  display:flex; 
-  align-items:center; 
-  justify-content:center; 
-  cursor:pointer; 
-}
+.cell { width:64px; height:64px; background-image:url("imagesschémasAcRaiders/100px-UI_Blueprint_background.png.webp"); background-size:cover; display:flex; align-items:center; justify-content:center; cursor:pointer; }
 .cell img { max-width:90%; max-height:90%; }
 </style>
 
@@ -38,7 +21,6 @@ const SUPABASE_KEY = "sb_publishable_NRM0OYkc4C5rjUxGKruR6A_y-iKPNRm";
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const players = ["REGULUS","FOX","Cress","Noname"];
-
 const blueprints = [
   ["80px-Bettina.png.webp","80px-Blue_Light_Stick.png.webp","80px-Aphelion.png.webp","80px-Combat_Mk._3_(Flanking).png.webp","80px-Combat_Mk._3_(Aggressive).png.webp","80px-Complex_Gun_Parts.png.webp","80px-Fireworks_Box.png.webp","80px-Gas_Mine.png.webp"],
   ["80px-Green_Light_Stick.png.webp","80px-Pulse_Mine.png.webp","80px-Seeker_Grenade.png.webp","80px-Looting_Mk._3_(Survivor).png.webp","80px-Angled_Grip_II.png.webp","80px-Angled_Grip_III.png.webp","80px-Hullcracker-Level1.png.webp","80px-Anvil-Level1.png.webp"],
@@ -93,20 +75,32 @@ async function saveChecked(player, cell, checked) {
           cellDiv.appendChild(img);
         }
 
-        const checked = await loadChecked(player, index);
+        let checked = await loadChecked(player, index);
         cellDiv.style.opacity = checked ? "0.4" : "1";
 
         cellDiv.onclick = async () => {
-          const newValue = cellDiv.style.opacity !== "0.4";
-          cellDiv.style.opacity = newValue ? "0.4" : "1";
-          await saveChecked(player, index, newValue);
+          checked = !checked;
+          cellDiv.style.opacity = checked ? "0.4" : "1";
+          await saveChecked(player, index, checked);
         };
 
+        cellDiv.dataset.player = player;
+        cellDiv.dataset.index = index;
         grid.appendChild(cellDiv);
         index++;
       }
     }
   }
+
+  // Realtime updates
+  sb.channel('public:cases')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'cases' }, payload => {
+      const { player, cell, checked } = payload.new;
+      document.querySelectorAll(`.cell[data-player="${player}"][data-index="${cell}"]`).forEach(c => {
+        c.style.opacity = checked ? "0.4" : "1";
+      });
+    })
+    .subscribe();
 })();
 </script>
 
