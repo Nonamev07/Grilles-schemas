@@ -98,4 +98,18 @@
         const caseDiv = document.createElement('div');
         caseDiv.className = 'case';
         const blueprintImage = blueprints[i];
-        caseDiv.addEventListener('click', () =>
+        caseDiv.addEventListener('click', () => {
+          // si case vide, mettre l'image ; si image déjà là, enlever
+          if(caseDiv.innerHTML === ''){
+            caseDiv.innerHTML = `<img src="imagesschémasAcRaiders/${blueprintImage}" alt="${blueprintImage}">`;
+          } else {
+            caseDiv.innerHTML = '';
+          }
+        });
+        grille.appendChild(caseDiv);
+      }
+    });
+  </script>
+
+</body>
+</html>
