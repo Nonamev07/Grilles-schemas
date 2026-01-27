@@ -2,7 +2,6 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta charset="UTF-8">
 <title>Arc Raiders – Blueprints</title>
 <style>
 body {
@@ -29,7 +28,6 @@ const SUPABASE_KEY = "sb_publishable_NRM0OYkc4C5rjUxGKruR6A_y-iKPNRm";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const players = ["REGULUS","FOX","Cress","Noname"];
-
 const blueprints = [
   ["80px-Bettina.png.webp","80px-Blue_Light_Stick.png.webp","80px-Aphelion.png.webp","80px-Combat_Mk._3_(Flanking).png.webp","80px-Combat_Mk._3_(Aggressive).png.webp","80px-Complex_Gun_Parts.png.webp","80px-Fireworks_Box.png.webp","80px-Gas_Mine.png.webp"],
   ["80px-Green_Light_Stick.png.webp","80px-Pulse_Mine.png.webp","80px-Seeker_Grenade.png.webp","80px-Looting_Mk._3_(Survivor).png.webp","80px-Angled_Grip_II.png.webp","80px-Angled_Grip_III.png.webp","80px-Hullcracker-Level1.png.webp","80px-Anvil-Level1.png.webp"],
@@ -43,28 +41,21 @@ const blueprints = [
   ["80px-Yellow_Light_Stick.png.webp","80px-Deadline.png.webp",null,null,null,null,null]
 ];
 
-// Charge l'état depuis Supabase ou crée si inexistant
-async function loadChecked(player, index) {
-  const { data } = await sb.from("cases")
-    .select("checked")
-    .eq("player", player)
-    .eq("cell", index)
-    .maybeSingle();
-  if (!data) {
-    await sb.from("cases").insert({ player, cell: index, checked: false });
-    return false;
-  }
-  return data.checked;
+// Charge tous les états en 1 requête
+async function loadAllStates() {
+  const { data, error } = await sb.from("cases").select("*");
+  if (error) console.error(error);
+  return data || [];
 }
 
-// Sauvegarde ou met à jour l'état
-async function saveChecked(player, index, checked) {
-  await sb.from("cases")
-    .upsert({ player, cell: index, checked }, { onConflict: "player,cell" });
+// Sauvegarde ou met à jour
+async function saveChecked(player, cell, checked) {
+  await sb.from("cases").upsert({ player, cell, checked }, { onConflict: "player,cell" });
 }
 
-// Génération des grilles
 (async () => {
+  const allStates = await loadAllStates();
+
   for (const player of players) {
     const box = document.createElement("div");
     box.className = "player";
@@ -86,15 +77,21 @@ async function saveChecked(player, index, checked) {
           cellDiv.appendChild(img);
         }
 
-        let checked = await loadChecked(player, index);
-        cellDiv.style.opacity = checked ? "0.4" : "1";
+        // Cherche l'état actuel
+        let state = allStates.find(s => s.player === player && s.cell === index);
+        if (!state) {
+          await sb.from("cases").insert({ player, cell: index, checked: false });
+          state = { checked: false };
+        }
+
+        cellDiv.style.opacity = state.checked ? "0.4" : "1";
         cellDiv.dataset.player = player;
         cellDiv.dataset.index = index;
 
         cellDiv.onclick = async () => {
-          checked = !checked;
-          cellDiv.style.opacity = checked ? "0.4" : "1";
-          await saveChecked(player, index, checked);
+          const newChecked = cellDiv.style.opacity !== "0.4";
+          cellDiv.style.opacity = newChecked ? "0.4" : "1";
+          await saveChecked(player, index, newChecked);
         };
 
         grid.appendChild(cellDiv);
