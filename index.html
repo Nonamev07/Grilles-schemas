@@ -42,14 +42,14 @@ async function loadState(player, index) {
   return data;
 }
 
-async function saveAllStates(players, index, checked) {
-  const updates = players.map(player => ({
+async function saveAllStates(player, index, checked) {
+  const updates = {
     player,
     cell: index,
     checked
   }));
 
-  // Perform the upsert operation for all players
+  // Perform the upsert operation for a players
   const { data, error } = await supabaseClient
     .from('cases')
     .upsert(updates);
@@ -93,7 +93,7 @@ async function saveAllStates(players, index, checked) {
             let newChecked = !checked;
             cell.style.opacity = newChecked ? "0.4" : "1";
             cell.dataset.index = index;
-            await saveAllStates(players, index, newChecked);
+            await saveAllStates(player, index, newChecked);
         };
 
         cell.style.opacity = checked ? "0.4" : "1";
