@@ -10,7 +10,7 @@
       justify-content: center;
       gap: 30px;
       font-family: sans-serif;
-      background-color: #222; /* fond sombre autour des grilles */
+      background-color: #222;
     }
 
     .grille-container {
@@ -19,24 +19,21 @@
 
     .grille {
       display: grid;
-      grid-template-columns: repeat(15, 60px); /* 15 colonnes */
-      grid-template-rows: repeat(5, 60px);    /* 5 lignes */
-      gap: 0; /* pas d'espacement */
+      grid-template-columns: repeat(15, 50px); /* 15 colonnes */
+      grid-template-rows: repeat(5, 50px);    /* 5 lignes */
+      gap: 0; /* pas d'espacement entre cases */
       margin-bottom: 10px;
-      background-image: url('imagesschémasAcRaiders/100px-UI_Blueprint_background.png.webp'); /* fond blueprint */
-      background-size: cover;
-      padding: 2px;
-      border: 2px solid #444; /* contour de la grille */
     }
 
     .case {
-      width: 60px;
-      height: 60px;
-      border: 1px solid #999; /* bordures fines */
+      width: 50px;
+      height: 50px;
+      background-image: url('imagesschémasAcRaiders/100px-UI_Blueprint_background.png.webp'); /* fond blueprint individuel */
+      background-size: cover;
+      border: 1px solid #888; /* bord très fin */
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: transparent;
       cursor: pointer;
     }
 
@@ -75,7 +72,6 @@
   </div>
 
   <script>
-    // 🔹 Liste des blueprints dans l'ordre du wiki avec les noms exacts
     const images = [
       "80px-Bettina.png.webp",
       "80px-Blue_Light_Stick.png.webp",
