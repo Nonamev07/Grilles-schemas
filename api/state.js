@@ -4,6 +4,7 @@ const path = require('path');
 const filePath = path.join(process.cwd(), 'state.json');
 
 module.exports = async (req, res) => {
+  // Si state.json n'existe pas, on le crée avec des objets vides
   if (!fs.existsSync(filePath)) {
     fs.writeFileSync(
       filePath,
