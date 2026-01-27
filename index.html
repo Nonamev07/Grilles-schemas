@@ -4,40 +4,15 @@
 <meta charset="UTF-8">
 <title>Arc Raiders – Blueprints</title>
 <style>
-body {
-  background:#222;
-  color:white;
-  font-family:sans-serif;
-  display:flex;
-  flex-wrap:wrap;
-  gap:40px;
-  justify-content:center;
-}
+body { background:#222; color:white; font-family:sans-serif; display:flex; flex-wrap:wrap; gap:40px; justify-content:center; }
 .player { text-align:center; }
-.grid {
-  display:grid;
-  grid-template-columns: repeat(10, 64px);
-  gap:2px;
-}
-.cell {
-  width:64px;
-  height:64px;
-  background-image:url("imagesschémasAcRaiders/100px-UI_Blueprint_background.png.webp");
-  background-size:cover;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-}
-.cell img {
-  max-width:90%;
-  max-height:90%;
-}
+.grid { display:grid; grid-template-columns: repeat(10, 64px); gap:2px; }
+.cell { width:64px; height:64px; background-image:url("imagesschémasAcRaiders/100px-UI_Blueprint_background.png.webp"); background-size:cover; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+.cell img { max-width:90%; max-height:90%; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-
 <script>
 const SUPABASE_URL = "https://mrgmnarzxuursfftqwjy.supabase.co";
 const SUPABASE_KEY = "sb_publishable_NRM0OYkc4C5rjUxGKruR6A_y-iKPNRm";
@@ -58,22 +33,12 @@ const blueprints = [
 ];
 
 async function loadChecked(player, cell) {
-  const { data } = await sb
-    .from("cases")
-    .select("checked")
-    .eq("player", player)
-    .eq("cell", cell)
-    .maybeSingle();
+  const { data } = await sb.from("cases").select("checked").eq("player", player).eq("cell", cell).maybeSingle();
   return data ? data.checked : false;
 }
 
 async function saveChecked(player, cell, checked) {
-  await sb
-    .from("cases")
-    .upsert(
-      { player, cell, checked },
-      { onConflict: ["player", "cell"] } // clé unique pour update
-    );
+  await sb.from("cases").upsert({ player, cell, checked }, { onConflict: ["player", "cell"] });
 }
 
 (async () => {
@@ -112,18 +77,7 @@ async function saveChecked(player, cell, checked) {
       }
     }
   }
-
-  // Temps réel
-  sb.channel('public:cases')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'cases' }, payload => {
-      const { player, cell, checked } = payload.new;
-      document.querySelectorAll(`.cell[data-player="${player}"][data-index="${cell}"]`).forEach(c => {
-        c.style.opacity = checked ? "0.4" : "1";
-      });
-    })
-    .subscribe();
 })();
 </script>
-
 </body>
 </html>
