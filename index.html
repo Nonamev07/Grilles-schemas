@@ -57,6 +57,8 @@ async function saveAllStates(player, index, checked) {
   if (error) {
     console.error('Error saving states:', error);
   } else {
+    console.log('Index used is :', index)
+    console.log('User used is :', player)
     console.log('States saved successfully:', data);
   }
 }
@@ -83,7 +85,7 @@ async function saveAllStates(player, index, checked) {
           img.src = "imagesschémasAcRaiders/" + imgName;
           cell.appendChild(img);
         }
-
+        
         cell.dataset.player = player;
         cell.dataset.index = index;
 
@@ -92,7 +94,7 @@ async function saveAllStates(player, index, checked) {
         cell.onclick = async () => {
             let newChecked = !checked;
             cell.style.opacity = newChecked ? "0.4" : "1";
-            await saveAllStates(player, index, newChecked);
+            await saveAllStates(player, cell.dataset.index , newChecked);
         };
 
         cell.style.opacity = checked ? "0.4" : "1";
