@@ -97,7 +97,7 @@ async function saveAllStates(player, index, checked) {
             let newChecked = !checked;
             checked = newChecked
             cell.style.opacity = newChecked ? "0.4" : "1";
-            await saveAllStates(player, cell.dataset.index , newChecked);
+            await saveAllStates(cell.dataset.player, cell.dataset.index , newChecked); 
         };
 
         grid.appendChild(cell);
