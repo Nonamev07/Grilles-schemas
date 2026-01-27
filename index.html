@@ -39,7 +39,7 @@ async function loadState(player, index) {
     .eq('player', player)
     .eq('cell', index)
     .maybeSingle();
-  return data;
+  return data ? data : false;
 }
 
 async function saveAllStates(player, index, checked) {
