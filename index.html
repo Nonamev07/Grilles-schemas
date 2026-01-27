@@ -69,11 +69,83 @@
   </div>
 
   <script>
-    // 🔹 Remplace ces URLs par celles de tes images GitHub brutes
+    // 🔹 Liste complète des images avec les noms exacts
     const images = [
-      "https://raw.githubusercontent.com/Nonamev07/Grilles-schemas/main/imagesschémasAcRaiders/80px-Angled_Grip_II.png.webp",
-      "https://raw.githubusercontent.com/Nonamev07/Grilles-schemas/main/imagesschémasAcRaiders/AutreBlueprint.png.webp",
-      // ajoute toutes les 75 URLs ici
+      "100px-UI_Blueprint_background.png (1).webp",
+      "100px-UI_Blueprint_background.png (2).webp",
+      "100px-UI_Blueprint_background.png.webp",
+      "80px-Angled_Grip_II.png.webp",
+      "80px-Angled_Grip_III.png.webp",
+      "80px-Anvil-Level1.png.webp",
+      "80px-Aphelion.png.webp",
+      "80px-Barricade_Kit.png.webp",
+      "80px-Bettina.png.webp",
+      "80px-Blaze_Grenade.png.webp",
+      "80px-Blue_Light_Stick.png.webp",
+      "80px-Bobcat-Level1.png.webp",
+      "80px-Burletta-Level1.png.webp",
+      "80px-Combat_Mk._3_(Aggressive).png.webp",
+      "80px-Combat_Mk._3_(Flanking).png.webp",
+      "80px-Compensator_II.png.webp",
+      "80px-Compensator_III.png.webp",
+      "80px-Complex_Gun_Parts.png.webp",
+      "80px-Deadline.png.webp",
+      "80px-Defibrillator.png.webp",
+      "80px-Equalizer.png.webp",
+      "80px-Explosive_Mine.png.webp",
+      "80px-Extended_Barrel.png.webp",
+      "80px-Extended_Light_Mag_II.png.webp",
+      "80px-Extended_Light_Mag_III.png.webp",
+      "80px-Extended_Medium_Mag_II.png.webp",
+      "80px-Extended_Medium_Mag_III.png.webp",
+      "80px-Extended_Shotgun_Mag_II.png.webp",
+      "80px-Extended_Shotgun_Mag_III.png.webp",
+      "80px-Fireworks_Box.png.webp",
+      "80px-Gas_Mine.png.webp",
+      "80px-Green_Light_Stick.png.webp",
+      "80px-Heavy_Gun_Parts.png.webp",
+      "80px-Hullcracker-Level1.png.webp",
+      "80px-Il_Toro-Level1.png.webp",
+      "80px-Jolt_Mine.png.webp",
+      "80px-Jupiter.png.webp",
+      "80px-Light_Gun_Parts.png.webp",
+      "80px-Lightweight_Stock.png.webp",
+      "80px-Looting_Mk._3_(Survivor).png.webp",
+      "80px-Lure_Grenade.png.webp",
+      "80px-Medium_Gun_Parts.png.webp",
+      "80px-Muzzle_Brake_II.png.webp",
+      "80px-Muzzle_Brake_III.png.webp",
+      "80px-Osprey-Level1.png.webp",
+      "80px-Padded_Stock.png.webp",
+      "80px-Pulse_Mine.png.webp",
+      "80px-Red_Light_Stick.png.webp",
+      "80px-Remote_Raider_Flare.png.webp",
+      "80px-Seeker_Grenade.png.webp",
+      "80px-Shotgun_Choke_II.png.webp",
+      "80px-Shotgun_Choke_III.png.webp",
+      "80px-Shotgun_Silencer.png.webp",
+      "80px-Showstopper.png.webp",
+      "80px-Silencer_I.png.webp",
+      "80px-Silencer_II.png.webp",
+      "80px-Smoke_Grenade.png.webp",
+      "80px-Snap_Hook.png.webp",
+      "80px-Stable_Stock_II.png.webp",
+      "80px-Stable_Stock_III.png.webp",
+      "80px-Tactical_Mk._3_(Defensive).png.webp",
+      "80px-Tactical_Mk._3_(Healing).png.webp",
+      "80px-Tagging_Grenade.png.webp",
+      "80px-Tempest-Level1.png.webp",
+      "80px-Torrente-Level1.png.webp",
+      "80px-Trailblazer.png.webp",
+      "80px-Trigger_Nade.png.webp",
+      "80px-Venator-Level1.png.webp",
+      "80px-Vertical_Grip_II.png.webp",
+      "80px-Vertical_Grip_III.png.webp",
+      "80px-Vita_Shot.png.webp",
+      "80px-Vita_Spray.png.webp",
+      "80px-Vulcano-Level1.png.webp",
+      "80px-Wolfpack.png.webp",
+      "80px-Yellow_Light_Stick.png.webp"
     ];
 
     const joueurs = ['grille-regulus','grille-fox','grille-cress','grille-noname'];
@@ -86,9 +158,8 @@
         caseDiv.className = 'case';
         const blueprintImage = images[i];
         caseDiv.addEventListener('click', () => {
-          // si case vide, mettre l'image ; si image déjà là, enlever
           if(caseDiv.innerHTML === ''){
-            caseDiv.innerHTML = `<img src="${blueprintImage}" alt="Blueprint">`;
+            caseDiv.innerHTML = `<img src="imagesschémasAcRaiders/${blueprintImage}" alt="Blueprint">`;
           } else {
             caseDiv.innerHTML = '';
           }
