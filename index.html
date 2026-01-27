@@ -7,7 +7,7 @@
 body { background:#222; color:white; font-family:sans-serif; display:flex; flex-wrap:wrap; gap:40px; justify-content:center; }
 .player { text-align:center; }
 .grid { display:grid; grid-template-columns: repeat(10, 64px); gap:2px; }
-.cell { width:64px; height:64px; background-image:url("imagesschémasAcRaiders/100px-UI_Blueprint_background.png.webp"); background-size:cover; display:flex; align-items:center; justify-content:center; }
+.cell { width:64px; height:64px; background-image:url("imagesschémasAcRaiders/100px-UI_Blueprint_background.png.webp"); background-size:cover; display:flex; align-items:center; justify-content:center; cursor:pointer; }
 .cell img { max-width:90%; max-height:90%; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -33,7 +33,6 @@ const blueprints = [
   ["80px-Yellow_Light_Stick.png.webp","80px-Deadline.png.webp",null,null,null,null,null]
 ];
 
-// fonction pour lire l’état d’une case
 async function loadState(player, index) {
   const { data } = await supabaseClient.from('cases')
     .select('checked')
@@ -43,7 +42,6 @@ async function loadState(player, index) {
   return data ? data.checked : false;
 }
 
-// fonction pour sauvegarder l’état d’une case
 async function saveState(player, index, checked) {
   await supabaseClient.from('cases')
     .upsert({ player, cell: index, checked }, { onConflict: ['player','cell'] });
