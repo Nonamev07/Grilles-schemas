@@ -63,4 +63,34 @@ async function saveState(player, cell, checked) {
     const grid = box.querySelector(".grid");
     let index = 0;
 
-    for (let row = 0; row < 8; row++)
+    for (let row = 0; row < 8; row++) {
+      for (let col = 0; col < 10; col++) {
+        const cell = document.createElement("div");
+        cell.className = "cell";
+
+        const imgName = blueprints[col][row];
+        if (imgName) {
+          const img = document.createElement("img");
+          img.src = "imagesschémasAcRaiders/" + imgName;
+          cell.appendChild(img);
+        }
+
+        let checked = await getState(player, index);
+        cell.style.opacity = checked ? "0.4" : "1";
+
+        cell.onclick = async () => {
+          checked = !checked;
+          cell.style.opacity = checked ? "0.4" : "1";
+          await saveState(player, index, checked);
+        };
+
+        grid.appendChild(cell);
+        index++;
+      }
+    }
+  }
+})();
+</script>
+
+</body>
+</html>
