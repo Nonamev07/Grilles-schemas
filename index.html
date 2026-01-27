@@ -92,7 +92,6 @@ async function saveAllStates(player, index, checked) {
         cell.onclick = async () => {
             let newChecked = !checked;
             cell.style.opacity = newChecked ? "0.4" : "1";
-            cell.dataset.index = index;
             await saveAllStates(player, index, newChecked);
         };
 
