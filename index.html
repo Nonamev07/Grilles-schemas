@@ -33,10 +33,11 @@ const blueprints = [
   ["80px-Yellow_Light_Stick.png.webp","80px-Deadline.png.webp",null,null,null,null,null]
 ];
 
-async function loadState(player) {
+async function loadState(player, index) {
   const { data } = await supabaseClient.from('cases')
-    .select('index, checked')
+    .select('checked')
     .eq('player', player)
+    .eq('cell', index)
     .maybeSingle();
   return data;
 }
@@ -74,13 +75,6 @@ async function saveAllStates(player, index, checked) {
     const grid = box.querySelector(".grid");
     let index = 0;
 
-    all_player_state = await loadState(player);
-    // Navigate through the results
-    let indexes = [];
-    all_player_state.forEach(state => {
-      indexes[state.index] = state.checked;
-    });
-    
     for (let row = 0; row < 8; row++) {
       for (let col = 0; col < 10; col++) {
         const cell = document.createElement("div");
@@ -92,14 +86,11 @@ async function saveAllStates(player, index, checked) {
           img.src = "imagesschémasAcRaiders/" + imgName;
           cell.appendChild(img);
         }
-        
+
         cell.dataset.player = player;
         cell.dataset.index = index;
 
-        let checked = indexes[index]
-        cell.style.opacity = checked ? "0.4" : "1";
-
-        grid.appendChild(cell);
+        let checked = await loadState(cell.dataset.player, cell.dataset.index);
 
         cell.onclick = async () => {
             let newChecked = !checked;
@@ -108,6 +99,9 @@ async function saveAllStates(player, index, checked) {
             await saveAllStates(player, cell.dataset.index , newChecked);
         };
 
+        cell.style.opacity = checked ? "0.4" : "1";
+
+        grid.appendChild(cell);
         index++;
       }
     }
@@ -126,4 +120,3 @@ async function saveAllStates(player, index, checked) {
 </script>
 
 </body>
-</html>
