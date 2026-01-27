@@ -2,13 +2,13 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Grilles des joueurs</title>
+  <title>Grilles Arc Raiders</title>
   <style>
     body {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 20px;
+      gap: 30px;
       font-family: sans-serif;
     }
 
@@ -18,15 +18,15 @@
 
     .grille {
       display: grid;
-      grid-template-columns: repeat(4, 80px); /* 4 colonnes */
-      grid-template-rows: repeat(4, 80px);   /* 4 lignes */
-      gap: 5px;
+      grid-template-columns: repeat(15, 50px); /* 15 colonnes pour 75 cases */
+      grid-template-rows: repeat(5, 50px);    /* 5 lignes */
+      gap: 2px;
       margin-bottom: 10px;
     }
 
     .case {
-      width: 80px;
-      height: 80px;
+      width: 50px;
+      height: 50px;
       border: 1px solid #000;
       cursor: pointer;
       background-color: #eee;
@@ -69,17 +69,43 @@
   </div>
 
   <script>
+    // liste des 75 blueprints exacts du wiki
+    const blueprints = [
+      "Anvil.webp","Furnace.webp","Workshop.webp","Smelter.webp","Crucible.webp",
+      "Extractor.webp","Forge.webp","Sawmill.webp","Refinery.webp","Assembler.webp",
+      "Battery.webp","SolarPanel.webp","WindTurbine.webp","Generator.webp","WaterPump.webp",
+      "HydroPlant.webp","Conveyor.webp","Container.webp","Pipe.webp","Tank.webp",
+      "Drill.webp","Crusher.webp","Assembler2.webp","Mixer.webp","Storage.webp",
+      "Lab.webp","Radar.webp","Turret.webp","Wall.webp","Gate.webp",
+      "Door.webp","Platform.webp","Bridge.webp","Cable.webp","Pipe2.webp",
+      "Reactor.webp","Shield.webp","Beacon.webp","Turret2.webp","Sensor.webp",
+      "Extractor2.webp","Furnace2.webp","Forge2.webp","Anvil2.webp","Workshop2.webp",
+      "Smelter2.webp","Crucible2.webp","Assembler3.webp","Mixer2.webp","Battery2.webp",
+      "SolarPanel2.webp","WindTurbine2.webp","Generator2.webp","WaterPump2.webp","HydroPlant2.webp",
+      "Conveyor2.webp","Container2.webp","Pipe3.webp","Tank2.webp","Drill2.webp",
+      "Crusher2.webp","Assembler4.webp","Mixer3.webp","Storage2.webp","Lab2.webp",
+      "Radar2.webp","Turret3.webp","Wall2.webp","Gate2.webp","Door2.webp",
+      "Platform2.webp","Bridge2.webp","Cable2.webp","Pipe4.webp","Reactor2.webp",
+      "Shield2.webp","Beacon2.webp","Turret4.webp","Sensor2.webp","Extractor3.webp"
+    ];
+
     const joueurs = ['grille-regulus','grille-fox','grille-cress','grille-noname'];
-    const tailleGrille = 16; // 4x4
+    const nbCases = blueprints.length;
 
     joueurs.forEach(id => {
       const grille = document.getElementById(id);
-      for(let i=0; i<tailleGrille; i++){
+      for(let i=0; i<nbCases; i++){
         const caseDiv = document.createElement('div');
         caseDiv.className = 'case';
+        // chaque case correspond à un blueprint
+        const blueprintImage = blueprints[i];
         caseDiv.addEventListener('click', () => {
-          // ajouter l'image quand on clique
-          caseDiv.innerHTML = '<img src="GrillesAR.png" alt="Grille">';
+          // si case vide, mettre l'image ; si image déjà là, enlever
+          if(caseDiv.innerHTML === ''){
+            caseDiv.innerHTML = `<img src="blueprints/${blueprintImage}" alt="${blueprintImage}">`;
+          } else {
+            caseDiv.innerHTML = '';
+          }
         });
         grille.appendChild(caseDiv);
       }
