@@ -10,14 +10,14 @@ body { background:#222; color:white; font-family:sans-serif; display:flex; flex-
 .cell { width:64px; height:64px; background-image:url("imagesschémasAcRaiders/100px-UI_Blueprint_background.png.webp"); background-size:cover; display:flex; align-items:center; justify-content:center; }
 .cell img { max-width:90%; max-height:90%; }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
 <script>
 const SUPABASE_URL = 'https://mrgmnarzxuursfftqwjy.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_NRM0OYkc4C5rjUxGKruR6A_y-iKPNRm';
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const players = ["REGULUS","FOX","Cress","Noname"];
 const blueprints = [
@@ -34,12 +34,12 @@ const blueprints = [
 ];
 
 async function loadState(player, index) {
-  const { data } = await supabase.from('cases').select('checked').eq('player', player).eq('cell', index).single();
+  const { data } = await supabaseClient.from('cases').select('checked').eq('player', player).eq('cell', index).maybeSingle();
   return data ? data.checked : false;
 }
 
 async function saveState(player, index, checked) {
-  await supabase.from('cases').upsert({ player, cell: index, checked });
+  await supabaseClient.from('cases').upsert({ player, cell: index, checked });
 }
 
 (async () => {
@@ -83,7 +83,8 @@ async function saveState(player, index, checked) {
     }
   }
 
-  supabase.channel('public:cases')
+  // Realtime updates
+  supabaseClient.channel('public:cases')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'cases' }, payload => {
       const { player, cell, checked } = payload.new;
       document.querySelectorAll(`.cell[data-player="${player}"][data-index="${cell}"]`).forEach(c => {
