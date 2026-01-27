@@ -5,18 +5,34 @@
 <title>Arc Raiders – Blueprints</title>
 <style>
 body {
-  background:#222; 
-  color:white; 
-  font-family:sans-serif; 
-  display:flex; 
-  flex-wrap:wrap; 
-  gap:40px; 
+  background:#222;
+  color:white;
+  font-family:sans-serif;
+  display:flex;
+  flex-wrap:wrap;
+  gap:40px;
   justify-content:center;
 }
 .player { text-align:center; }
-.grid { display:grid; grid-template-columns: repeat(10, 64px); gap:2px; }
-.cell { width:64px; height:64px; background-image:url("imagesschémasAcRaiders/100px-UI_Blueprint_background.png.webp"); background-size:cover; display:flex; align-items:center; justify-content:center; cursor:pointer; }
-.cell img { max-width:90%; max-height:90%; }
+.grid {
+  display:grid;
+  grid-template-columns: repeat(10, 64px);
+  gap:2px;
+}
+.cell {
+  width:64px;
+  height:64px;
+  background-image:url("imagesschémasAcRaiders/100px-UI_Blueprint_background.png.webp");
+  background-size:cover;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+}
+.cell img {
+  max-width:90%;
+  max-height:90%;
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -41,21 +57,26 @@ const blueprints = [
   ["80px-Yellow_Light_Stick.png.webp","80px-Deadline.png.webp",null,null,null,null,null]
 ];
 
-// Charge tous les états en 1 requête
-async function loadAllStates() {
-  const { data, error } = await sb.from("cases").select("*");
-  if (error) console.error(error);
-  return data || [];
+async function loadChecked(player, cell) {
+  const { data } = await sb
+    .from("cases")
+    .select("checked")
+    .eq("player", player)
+    .eq("cell", cell)
+    .maybeSingle();
+  return data ? data.checked : false;
 }
 
-// Sauvegarde ou met à jour
 async function saveChecked(player, cell, checked) {
-  await sb.from("cases").upsert({ player, cell, checked }, { onConflict: "player,cell" });
+  await sb
+    .from("cases")
+    .upsert(
+      { player, cell, checked },
+      { onConflict: ["player", "cell"] } // clé unique pour update
+    );
 }
 
 (async () => {
-  const allStates = await loadAllStates();
-
   for (const player of players) {
     const box = document.createElement("div");
     box.className = "player";
@@ -77,21 +98,13 @@ async function saveChecked(player, cell, checked) {
           cellDiv.appendChild(img);
         }
 
-        // Cherche l'état actuel
-        let state = allStates.find(s => s.player === player && s.cell === index);
-        if (!state) {
-          await sb.from("cases").insert({ player, cell: index, checked: false });
-          state = { checked: false };
-        }
-
-        cellDiv.style.opacity = state.checked ? "0.4" : "1";
-        cellDiv.dataset.player = player;
-        cellDiv.dataset.index = index;
+        let checked = await loadChecked(player, index);
+        cellDiv.style.opacity = checked ? "0.4" : "1";
 
         cellDiv.onclick = async () => {
-          const newChecked = cellDiv.style.opacity !== "0.4";
-          cellDiv.style.opacity = newChecked ? "0.4" : "1";
-          await saveChecked(player, index, newChecked);
+          checked = !checked;
+          cellDiv.style.opacity = checked ? "0.4" : "1";
+          await saveChecked(player, index, checked);
         };
 
         grid.appendChild(cellDiv);
@@ -100,7 +113,7 @@ async function saveChecked(player, cell, checked) {
     }
   }
 
-  // Mise à jour en temps réel
+  // Temps réel
   sb.channel('public:cases')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'cases' }, payload => {
       const { player, cell, checked } = payload.new;
