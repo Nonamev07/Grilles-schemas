@@ -70,7 +70,7 @@ async function loadChecked(player, cell) {
   return data ? data.checked : false;
 }
 
-async function saveChecked(player, cell, checked) {
+async function async function saveChecked(player, cell, checked) {   await sb     .from("cases")     .upsert(       { player, cell, checked },       { onConflict: "player,cell" }     ); }(player, cell, checked) {
   await sb.from("cases").upsert({ player, cell, checked });
 }
 
@@ -102,7 +102,7 @@ async function saveChecked(player, cell, checked) {
         cellDiv.onclick = async () => {
           const newValue = cellDiv.style.opacity !== "0.4";
           cellDiv.style.opacity = newValue ? "0.4" : "1";
-          await saveChecked(player, index, newValue);
+          await async function saveChecked(player, cell, checked) {   await sb     .from("cases")     .upsert(       { player, cell, checked },       { onConflict: "player,cell" }     ); }(player, index, newValue);
         };
 
         grid.appendChild(cellDiv);
