@@ -47,7 +47,7 @@ async function saveAllStates(player, index, checked) {
     player,
     cell: index,
     checked
-  }));
+  };
 
   // Perform the upsert operation for a players
   const { data, error } = await supabaseClient
