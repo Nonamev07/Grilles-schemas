@@ -3,37 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <title>Arc Raiders – Blueprints</title>
-
 <style>
-body {
-  background:#222;
-  color:white;
-  font-family:sans-serif;
-  display:flex;
-  flex-wrap:wrap;
-  gap:40px;
-  justify-content:center;
+body { 
+  background:#222; 
+  color:white; 
+  font-family:sans-serif; 
+  display:flex; 
+  flex-wrap:wrap; 
+  gap:40px; 
+  justify-content:center; 
 }
 .player { text-align:center; }
-.grid {
-  display:grid;
-  grid-template-columns: repeat(10, 64px);
-  gap:2px;
+.grid { display:grid; grid-template-columns: repeat(10, 64px); gap:2px; }
+.cell { 
+  width:64px; 
+  height:64px; 
+  background-image:url("imagesschémasAcRaiders/100px-UI_Blueprint_background.png.webp"); 
+  background-size:cover; 
+  display:flex; 
+  align-items:center; 
+  justify-content:center; 
+  cursor:pointer; 
 }
-.cell {
-  width:64px;
-  height:64px;
-  background-image:url("imagesschémasAcRaiders/100px-UI_Blueprint_background.png.webp");
-  background-size:cover;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-}
-.cell img {
-  max-width:90%;
-  max-height:90%;
-}
+.cell img { max-width:90%; max-height:90%; }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -70,8 +62,13 @@ async function loadChecked(player, cell) {
   return data ? data.checked : false;
 }
 
-async function async function saveChecked(player, cell, checked) {   await sb     .from("cases")     .upsert(       { player, cell, checked },       { onConflict: "player,cell" }     ); }(player, cell, checked) {
-  await sb.from("cases").upsert({ player, cell, checked });
+async function saveChecked(player, cell, checked) {
+  await sb
+    .from("cases")
+    .upsert(
+      { player, cell, checked },
+      { onConflict: "player,cell" }
+    );
 }
 
 (async () => {
@@ -102,7 +99,7 @@ async function async function saveChecked(player, cell, checked) {   await sb   
         cellDiv.onclick = async () => {
           const newValue = cellDiv.style.opacity !== "0.4";
           cellDiv.style.opacity = newValue ? "0.4" : "1";
-          await async function saveChecked(player, cell, checked) {   await sb     .from("cases")     .upsert(       { player, cell, checked },       { onConflict: "player,cell" }     ); }(player, index, newValue);
+          await saveChecked(player, index, newValue);
         };
 
         grid.appendChild(cellDiv);
