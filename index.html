@@ -4,43 +4,87 @@
   <meta charset="UTF-8">
   <title>Grilles des joueurs</title>
   <style>
-    .grille {
-      display: inline-block;
-      margin: 10px;
+    body {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      font-family: sans-serif;
+    }
+
+    .grille-container {
       text-align: center;
     }
-    .grille img {
-      width: 150px; /* taille de l'image */
-      height: 150px;
-      border: 1px solid #000;
+
+    .grille {
+      display: grid;
+      grid-template-columns: repeat(4, 80px); /* 4 colonnes */
+      grid-template-rows: repeat(4, 80px);   /* 4 lignes */
+      gap: 5px;
+      margin-bottom: 10px;
     }
+
+    .case {
+      width: 80px;
+      height: 80px;
+      border: 1px solid #000;
+      cursor: pointer;
+      background-color: #eee;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .case img {
+      max-width: 100%;
+      max-height: 100%;
+    }
+
     .nom-joueur {
-      margin-top: 5px;
       font-weight: bold;
+      margin-bottom: 5px;
     }
   </style>
 </head>
 <body>
 
-  <div class="grille">
-    <img src="GrillesAR.png" alt="REGULUS">
+  <div class="grille-container">
     <div class="nom-joueur">REGULUS</div>
+    <div class="grille" id="grille-regulus"></div>
   </div>
 
-  <div class="grille">
-    <img src="GrillesAR.png" alt="FOX">
+  <div class="grille-container">
     <div class="nom-joueur">FOX</div>
+    <div class="grille" id="grille-fox"></div>
   </div>
 
-  <div class="grille">
-    <img src="GrillesAR.png" alt="Cress">
+  <div class="grille-container">
     <div class="nom-joueur">Cress</div>
+    <div class="grille" id="grille-cress"></div>
   </div>
 
-  <div class="grille">
-    <img src="GrillesAR.png" alt="Noname">
+  <div class="grille-container">
     <div class="nom-joueur">Noname</div>
+    <div class="grille" id="grille-noname"></div>
   </div>
+
+  <script>
+    const joueurs = ['grille-regulus','grille-fox','grille-cress','grille-noname'];
+    const tailleGrille = 16; // 4x4
+
+    joueurs.forEach(id => {
+      const grille = document.getElementById(id);
+      for(let i=0; i<tailleGrille; i++){
+        const caseDiv = document.createElement('div');
+        caseDiv.className = 'case';
+        caseDiv.addEventListener('click', () => {
+          // ajouter l'image quand on clique
+          caseDiv.innerHTML = '<img src="GrillesAR.png" alt="Grille">';
+        });
+        grille.appendChild(caseDiv);
+      }
+    });
+  </script>
 
 </body>
 </html>
