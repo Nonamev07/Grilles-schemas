@@ -33,13 +33,20 @@ const blueprints = [
   ["80px-Yellow_Light_Stick.png.webp","80px-Deadline.png.webp",null,null,null,null,null]
 ];
 
+// fonction pour lire l’état d’une case
 async function loadState(player, index) {
-  const { data } = await supabaseClient.from('cases').select('checked').eq('player', player).eq('cell', index).maybeSingle();
+  const { data } = await supabaseClient.from('cases')
+    .select('checked')
+    .eq('player', player)
+    .eq('cell', index)
+    .maybeSingle();
   return data ? data.checked : false;
 }
 
+// fonction pour sauvegarder l’état d’une case
 async function saveState(player, index, checked) {
-  await supabaseClient.from('cases').upsert({ player, cell: index, checked });
+  await supabaseClient.from('cases')
+    .upsert({ player, cell: index, checked }, { onConflict: ['player','cell'] });
 }
 
 (async () => {
@@ -83,7 +90,7 @@ async function saveState(player, index, checked) {
     }
   }
 
-  // Realtime updates
+  // mise à jour en temps réel
   supabaseClient.channel('public:cases')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'cases' }, payload => {
       const { player, cell, checked } = payload.new;
