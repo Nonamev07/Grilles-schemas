@@ -5,21 +5,32 @@
 <title>Arc Raiders – Blueprints</title>
 
 <style>
+/* ===== FOND ARC RAIDERS ===== */
 body {
-  background:#222;
+  background:
+    linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,.55)),
+    url("https://4kwallpapers.com/images/walls/thumbs_3t/23576.jpg");
+  background-size:cover;
+  background-position:center;
+  background-attachment:fixed;
+
   color:white;
   font-family:sans-serif;
   display:flex;
   flex-wrap:wrap;
   gap:40px;
   justify-content:center;
+  padding:30px;
 }
+
 .player { text-align:center; }
+
 .grid {
   display:grid;
   grid-template-columns: repeat(10, 64px);
   gap:2px;
 }
+
 .cell {
   width:64px;
   height:64px;
@@ -29,10 +40,44 @@ body {
   align-items:center;
   justify-content:center;
   cursor:pointer;
+  position:relative;
 }
+
 .cell img {
   max-width:90%;
   max-height:90%;
+  z-index:1;
+}
+
+/* ===== CASE COCHÉE ===== */
+.cell.checked::after {
+  content:"";
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  z-index:2;
+}
+
+/* ===== TOOLTIP ===== */
+.tooltip {
+  position:absolute;
+  bottom:72px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#111;
+  border:1px solid #666;
+  padding:6px 10px;
+  font-size:12px;
+  color:#fff;
+  white-space:nowrap;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .15s;
+  z-index:5;
+}
+
+.cell:hover .tooltip {
+  opacity:1;
 }
 </style>
 
@@ -60,6 +105,10 @@ const blueprints = [
   ["80px-Wolfpack.png.webp","80px-Yellow_Light_Stick.png.webp",null,null,null,null,null,null,null,null]
 ];
 
+const names = blueprints.flat().map(n =>
+  n ? n.replace("80px-","").replace(".png.webp","").replace(/_/g," ") : null
+);
+
 /* ===== DB ===== */
 async function loadAll() {
   const { data, error } = await sb.from("cases").select("*");
@@ -71,7 +120,7 @@ async function save(player, cell, checked) {
   console.log("SAVE", player, cell, checked);
   const { error } = await sb.from("cases").upsert(
     { player, cell, checked },
-    { onConflict: "player,cell" }
+    { onConflict:"player,cell" }
   );
   if (error) console.error("SAVE ERROR", error);
 }
@@ -90,46 +139,48 @@ async function save(player, cell, checked) {
 
     const grid = box.querySelector(".grid");
 
-    for (let row = 0; row < blueprints.length; row++) {
-      for (let col = 0; col < 10; col++) {
-        const index = row * 10 + col;
+    blueprints.flat().forEach((imgName, i) => {
+      const cellDiv = document.createElement("div");
+      cellDiv.className = "cell";
+      cellDiv.dataset.player = player;
+      cellDiv.dataset.cell = i;
 
-        const cellDiv = document.createElement("div");
-        cellDiv.className = "cell";
-        cellDiv.dataset.player = player;
-        cellDiv.dataset.cell = index;
+      if (imgName) {
+        const img = document.createElement("img");
+        img.src = "imagesschémasAcRaiders/" + imgName;
+        cellDiv.appendChild(img);
 
-        const imgName = blueprints[row][col];
-        if (imgName) {
-          const img = document.createElement("img");
-          img.src = "imagesschémasAcRaiders/" + imgName;
-          cellDiv.appendChild(img);
-        }
-
-        let checked = map[`${player}-${index}`] || false;
-        cellDiv.style.opacity = checked ? "0.4" : "1";
-
-        cellDiv.onclick = async () => {
-          checked = !checked;
-          console.log("CLICK", player, index, checked);
-          cellDiv.style.opacity = checked ? "0.4" : "1";
-          await save(player, index, checked);
-        };
-
-        grid.appendChild(cellDiv);
+        const tip = document.createElement("div");
+        tip.className = "tooltip";
+        tip.textContent = names[i];
+        cellDiv.appendChild(tip);
       }
-    }
+
+      let checked = map[`${player}-${i}`] || false;
+      cellDiv.classList.toggle("checked", checked);
+
+      cellDiv.onclick = async () => {
+        checked = !checked;
+        console.log("CLICK", player, i, checked);
+        cellDiv.classList.toggle("checked", checked);
+        await save(player, i, checked);
+      };
+
+      grid.appendChild(cellDiv);
+    });
   });
 
+  /* ===== REALTIME ===== */
   sb.channel("cases-realtime")
-    .on("postgres_changes",
+    .on(
+      "postgres_changes",
       { event:"*", schema:"public", table:"cases" },
       payload => {
         console.log("REALTIME", payload.new);
         const { player, cell, checked } = payload.new;
         document
           .querySelectorAll(`.cell[data-player="${player}"][data-cell="${cell}"]`)
-          .forEach(c => c.style.opacity = checked ? "0.4" : "1");
+          .forEach(c => c.classList.toggle("checked", checked));
       }
     )
     .subscribe();
