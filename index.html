@@ -42,12 +42,12 @@ body {
 <body>
 
 <script>
-/* ================= SUPABASE ================= */
+/* ===== SUPABASE ===== */
 const SUPABASE_URL = "https://mrgmnarzxuursfftqwjy.supabase.co";
 const SUPABASE_KEY = "sb_publishable_NRM0OYkc4C5rjUxGKruR6A_y-iKPNRm";
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-/* ================= DATA ================= */
+/* ===== DATA ===== */
 const players = ["REGULUS","FOX","Cress","Noname"];
 
 const blueprints = [
@@ -59,88 +59,4 @@ const blueprints = [
   ["80px-Lightweight_Stock.png.webp","80px-Lure_Grenade.png.webp","80px-Medium_Gun_Parts.png.webp","80px-Torrente-Level1.png.webp","80px-Muzzle_Brake_II.png.webp","80px-Muzzle_Brake_III.png.webp","80px-Padded_Stock.png.webp"],
   ["80px-Shotgun_Choke_II.png.webp","80px-Shotgun_Choke_III.png.webp","80px-Shotgun_Silencer.png.webp","80px-Showstopper.png.webp","80px-Silencer_I.png.webp","80px-Silencer_II.png.webp","80px-Smoke_Grenade.png.webp"],
   ["80px-Snap_Hook.png.webp","80px-Stable_Stock_II.png.webp","80px-Stable_Stock_III.png.webp","80px-Tactical_Mk._3_(Defensive).png.webp","80px-Tactical_Mk._3_(Healing).png.webp","80px-Tagging_Grenade.png.webp","80px-Tempest-Level1.png.webp"],
-  ["80px-Trailblazer.png.webp","80px-Trigger_Nade.png.webp","80px-Vita_Shot.png.webp","80px-Vita_Spray.png.webp","80px-Vulcano-Level1.png.webp","80px-Wolfpack.png.webp","80px-Red_Light_Stick.png.webp"],
-  ["80px-Yellow_Light_Stick.png.webp","80px-Deadline.png.webp",null,null,null,null,null]
-];
-
-/* ================= DB FUNCTIONS ================= */
-async function loadAll() {
-  const { data } = await supabase.from("cases").select("*");
-  return data || [];
-}
-
-async function save(player, cell, checked) {
-  await supabase
-    .from("cases")
-    .upsert(
-      { player, cell, checked },
-      { onConflict: "player,cell" }
-    );
-}
-
-/* ================= UI ================= */
-(async () => {
-  const saved = await loadAll();
-
-  const map = {};
-  saved.forEach(e => {
-    map[`${e.player}-${e.cell}`] = e.checked;
-  });
-
-  players.forEach(player => {
-    const box = document.createElement("div");
-    box.className = "player";
-    box.innerHTML = `<h3>${player}</h3><div class="grid"></div>`;
-    document.body.appendChild(box);
-
-    const grid = box.querySelector(".grid");
-    let index = 0;
-
-    for (let row = 0; row < 8; row++) {
-      for (let col = 0; col < 10; col++) {
-        const cellDiv = document.createElement("div");
-        cellDiv.className = "cell";
-        cellDiv.dataset.player = player;
-        cellDiv.dataset.cell = index;
-
-        const imgName = blueprints[col][row];
-        if (imgName) {
-          const img = document.createElement("img");
-          img.src = "imagesschémasAcRaiders/" + imgName;
-          cellDiv.appendChild(img);
-        }
-
-        const key = `${player}-${index}`;
-        let checked = map[key] || false;
-        cellDiv.style.opacity = checked ? "0.4" : "1";
-
-        cellDiv.onclick = async () => {
-          checked = !checked;
-          cellDiv.style.opacity = checked ? "0.4" : "1";
-          await save(player, index, checked);
-        };
-
-        grid.appendChild(cellDiv);
-        index++;
-      }
-    }
-  });
-
-  /* ===== REALTIME ===== */
-  supabase.channel("realtime-cases")
-    .on(
-      "postgres_changes",
-      { event: "*", schema: "public", table: "cases" },
-      payload => {
-        const { player, cell, checked } = payload.new;
-        document
-          .querySelectorAll(`.cell[data-player="${player}"][data-cell="${cell}"]`)
-          .forEach(c => c.style.opacity = checked ? "0.4" : "1");
-      }
-    )
-    .subscribe();
-})();
-</script>
-
-</body>
-</html>
+  ["80px-Trailblazer.png.webp","80px-Trigger_Nade.png.webp","80px-Vita_Shot.png.webp","80px-Vita_Spray.png.web_]()
