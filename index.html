@@ -63,12 +63,13 @@ const blueprints = [
   ["80px-Yellow_Light_Stick.png.webp","80px-Deadline.png.webp",null,null,null,null,null]
 ];
 
-/* ===== DB ===== */
+/* ===== LOAD ALL ===== */
 async function loadAll() {
   const { data } = await sb.from("cases").select("*");
   return data || [];
 }
 
+/* ===== SAVE ===== */
 async function save(player, cell, checked) {
   await sb.from("cases").upsert(
     { player, cell, checked },
@@ -80,7 +81,7 @@ async function save(player, cell, checked) {
 (async () => {
   const saved = await loadAll();
   const map = {};
-  saved.forEach(e => map[`${e.player}-${e.cell}`] = e.checked);
+  saved.forEach(r => map[`${r.player}-${r.cell}`] = r.checked);
 
   players.forEach(player => {
     const box = document.createElement("div");
@@ -120,6 +121,7 @@ async function save(player, cell, checked) {
     }
   });
 
+  /* ===== REALTIME ===== */
   sb.channel("cases-realtime")
     .on("postgres_changes",
       { event: "*", schema: "public", table: "cases" },
