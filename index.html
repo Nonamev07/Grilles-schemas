@@ -155,7 +155,7 @@ body{
 </head>
 <body>
 
-<!-- ===== AUDIO INTRO (AUTOPLAY PUR) ===== -->
+<!-- ===== AUDIO INTRO (AUTOPLAY AU CHARGEMENT) ===== -->
 <audio
   id="hud-audio"
   src="/WelcomeSperanza.mp3"
@@ -173,15 +173,13 @@ body{
 <div class="wrapper" id="app"></div>
 
 <script>
-/* ===== PLAY ON LOAD / ONCE PER SESSION ===== */
+/* ===== LECTURE UNE FOIS PAR SESSION ===== */
 (() => {
   if (sessionStorage.getItem("introPlayed")) return;
-
   const audio = document.getElementById("hud-audio");
   audio.currentTime = 0;
-
   audio.play().catch(()=>{});
-  sessionStorage.setItem("introPlayed", "1");
+  sessionStorage.setItem("introPlayed","1");
 })();
 
 const sb = supabase.createClient(
@@ -191,7 +189,80 @@ const sb = supabase.createClient(
 
 const players=["REGULUS","FOX","Cress","Noname"];
 
-/* --- le reste du code est STRICTEMENT identique --- */
+const blueprints=[
+ ["80px-Angled_Grip_II.png.webp","80px-Angled_Grip_III.png.webp","80px-Anvil-Level1.png.webp","80px-Aphelion.png.webp","80px-Barricade_Kit.png.webp","80px-Bettina.png.webp","80px-Blaze_Grenade.png.webp","80px-Blue_Light_Stick.png.webp","80px-Bobcat-Level1.png.webp","80px-Burletta-Level1.png.webp"],
+ ["80px-Defibrillator.png.webp","80px-Equalizer.png.webp","80px-Explosive_Mine.png.webp","80px-Extended_Barrel.png.webp","80px-Combat_Mk._3_(Aggressive).png.webp","80px-Combat_Mk._3_(Flanking).png.webp","80px-Compensator_II.png.webp","80px-Compensator_III.png.webp","80px-Complex_Gun_Parts.png.webp","80px-Deadline.png.webp"],
+ ["80px-Extended_Light_Mag_II.png.webp","80px-Extended_Light_Mag_III.png.webp","80px-Extended_Medium_Mag_II.png.webp","80px-Extended_Medium_Mag_III.png.webp","80px-Extended_Shotgun_Mag_II.png.webp","80px-Extended_Shotgun_Mag_III.png.webp","80px-Fireworks_Box.png.webp","80px-Gas_Mine.png.webp","80px-Green_Light_Stick.png.webp","80px-Heavy_Gun_Parts.png.webp"],
+ ["80px-Jolt_Mine.png.webp","80px-Jupiter.png.webp","80px-Light_Gun_Parts.png.webp","80px-Lightweight_Stock.png.webp","80px-Looting_Mk._3_(Survivor).png.webp","80px-Lure_Grenade.png.webp","80px-Medium_Gun_Parts.png.webp","80px-Muzzle_Brake_II.png.webp","80px-Hullcracker-Level1.png.webp","80px-Il_Toro-Level1.png.webp"],
+ ["80px-Muzzle_Brake_III.png.webp","80px-Osprey-Level1.png.webp","80px-Padded_Stock.png.webp","80px-Pulse_Mine.png.webp","80px-Red_Light_Stick.png.webp","80px-Remote_Raider_Flare.png.webp","80px-Seeker_Grenade.png.webp","80px-Shotgun_Choke_II.png.webp","80px-Shotgun_Choke_III.png.webp","80px-Shotgun_Silencer.png.webp"],
+ ["80px-Showstopper.png.webp","80px-Silencer_I.png.webp","80px-Silencer_II.png.webp","80px-Smoke_Grenade.png.webp","80px-Snap_Hook.png.webp","80px-Stable_Stock_II.png.webp","80px-Stable_Stock_III.png.webp","80px-Tactical_Mk._3_(Defensive).png.webp","80px-Tactical_Mk._3_(Healing).png.webp","80px-Tagging_Grenade.png.webp"],
+ ["80px-Tempest-Level1.png.webp","80px-Torrente-Level1.png.webp","80px-Trailblazer.png.webp","80px-Trigger_Nade.png.webp","80px-Venator-Level1.png.webp","80px-Vertical_Grip_II.png.webp","80px-Vertical_Grip_III.png.webp","80px-Vita_Shot.png.webp","80px-Vita_Spray.png.webp","80px-Vulcano-Level1.png.webp"],
+ ["80px-Wolfpack.png.webp","80px-Yellow_Light_Stick.png.webp",null,null,null,null,null,null,null,null]
+];
+
+const names=blueprints.map(r=>r.map(f=>f?f.replace("80px-","").replace(".png.webp","").replaceAll("_"," "):""));
+
+async function loadAll(){
+  const {data}=await sb.from("cases").select("*");
+  return data||[];
+}
+
+async function save(player,cell,checked){
+  await sb.from("cases").upsert({player,cell,checked},{onConflict:"player,cell"});
+}
+
+(async()=>{
+  const saved=await loadAll();
+  const map={};
+  saved.forEach(r=>map[`${r.player}-${r.cell}`]=r.checked);
+
+  const app=document.getElementById("app");
+
+  players.forEach(player=>{
+    const box=document.createElement("div");
+    box.className="player";
+    box.innerHTML=`<h3>${player}</h3><div class="grid"></div>`;
+    app.appendChild(box);
+
+    const grid=box.querySelector(".grid");
+
+    for(let r=0;r<blueprints.length;r++){
+      for(let c=0;c<10;c++){
+        const idx=r*10+c;
+        const cell=document.createElement("div");
+        cell.className="cell";
+        cell.dataset.player=player;
+        cell.dataset.cell=idx;
+        cell.dataset.name=names[r][c];
+
+        if(blueprints[r][c]){
+          const img=document.createElement("img");
+          img.src="imagesschémasAcRaiders/"+blueprints[r][c];
+          cell.appendChild(img);
+        }
+
+        let checked=map[`${player}-${idx}`]||false;
+        cell.classList.toggle("checked",checked);
+
+        cell.onclick=async()=>{
+          checked=!checked;
+          cell.classList.toggle("checked",checked);
+          await save(player,idx,checked);
+        };
+
+        grid.appendChild(cell);
+      }
+    }
+  });
+
+  sb.channel("cases-realtime")
+    .on("postgres_changes",{event:"*",schema:"public",table:"cases"},p=>{
+      document
+        .querySelectorAll(`.cell[data-player="${p.new.player}"][data-cell="${p.new.cell}"]`)
+        .forEach(c=>c.classList.toggle("checked",p.new.checked));
+    })
+    .subscribe();
+})();
 </script>
 
 </body>
