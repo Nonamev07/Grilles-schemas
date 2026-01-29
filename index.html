@@ -39,7 +39,7 @@ body{
   align-items:center;
   justify-content:center;
   cursor:pointer;
-  transition:filter .2s, background-color .2s;
+  position:relative;
 }
 
 .cell img{
@@ -50,7 +50,6 @@ body{
 
 .cell.checked{
   background-color:rgba(0,0,0,.6);
-  filter:grayscale(1);
 }
 
 .cell.checked img{
@@ -58,11 +57,14 @@ body{
   opacity:.45;
 }
 
-/* Tooltip */
+/* ===== TOOLTIP FIX ===== */
 .cell::after{
   content:attr(data-name);
   position:absolute;
-  bottom:72px;
+  bottom:100%;
+  margin-bottom:6px;
+  left:50%;
+  transform:translateX(-50%);
   background:#111;
   color:#fff;
   font-size:11px;
@@ -71,13 +73,12 @@ body{
   white-space:nowrap;
   opacity:0;
   pointer-events:none;
-  transform:translateY(5px);
   transition:.15s;
+  z-index:10;
 }
 
 .cell:hover::after{
   opacity:1;
-  transform:translateY(0);
 }
 </style>
 
@@ -106,7 +107,11 @@ const blueprints = [
  ["80px-Wolfpack.png.webp","80px-Yellow_Light_Stick.png.webp",null,null,null,null,null,null,null,null]
 ];
 
-const names = blueprints.map(r=>r.map(f=>f?f.replace("80px-","").replace(".png.webp","").replaceAll("_"," "):""));
+const names = blueprints.map(r =>
+  r.map(f =>
+    f ? f.replace("80px-","").replace(".png.webp","").replaceAll("_"," ") : ""
+  )
+);
 
 /* ===== DB ===== */
 async function loadAll(){
@@ -131,22 +136,24 @@ async function save(player,cell,checked){
     box.className="player";
     box.innerHTML=`<h3>${player}</h3><div class="grid"></div>`;
     document.body.appendChild(box);
+
     const grid=box.querySelector(".grid");
 
     for(let r=0;r<blueprints.length;r++){
       for(let c=0;c<10;c++){
         const idx=r*10+c;
+
         const cell=document.createElement("div");
         cell.className="cell";
         cell.dataset.player=player;
         cell.dataset.cell=idx;
-        cell.dataset.name=names[r][c]||"";
+        cell.dataset.name=names[r][c];
 
-        const img=blueprints[r][c];
-        if(img){
-          const i=document.createElement("img");
-          i.src="imagesschémasAcRaiders/"+img;
-          cell.appendChild(i);
+        const imgName=blueprints[r][c];
+        if(imgName){
+          const img=document.createElement("img");
+          img.src="imagesschémasAcRaiders/"+imgName;
+          cell.appendChild(img);
         }
 
         let checked=map[`${player}-${idx}`]||false;
@@ -164,13 +171,16 @@ async function save(player,cell,checked){
     }
   });
 
-  sb.channel("cases-rt")
-    .on("postgres_changes",{event:"*",schema:"public",table:"cases"},p=>{
-      console.log("REALTIME",p.new);
-      document
-        .querySelectorAll(`.cell[data-player="${p.new.player}"][data-cell="${p.new.cell}"]`)
-        .forEach(c=>c.classList.toggle("checked",p.new.checked));
-    })
+  sb.channel("cases-realtime")
+    .on("postgres_changes",
+      {event:"*",schema:"public",table:"cases"},
+      p=>{
+        console.log("REALTIME",p.new);
+        document
+          .querySelectorAll(`.cell[data-player="${p.new.player}"][data-cell="${p.new.cell}"]`)
+          .forEach(c=>c.classList.toggle("checked",p.new.checked));
+      }
+    )
     .subscribe();
 })();
 </script>
