@@ -23,60 +23,51 @@ body{
 .hud{
   position:fixed;
   top:0; left:0; right:0;
-  height:56px;
-  background:rgba(8,12,18,.75);
+  height:120px;
+  background:rgba(8,12,18,.85);
   backdrop-filter:blur(6px);
   display:flex;
   align-items:center;
-  padding:0 20px;
-  z-index:100;
-
-  animation:hudPulse 3.5s ease-in-out infinite;
+  justify-content:center;
+  z-index:1000;
+  animation:hudIntro 1.6s ease forwards;
 }
 
-@keyframes hudPulse{
-  0%{
-    box-shadow:
-      0 2px 10px rgba(0,0,0,.6),
-      0 0 0 rgba(0,200,255,0);
-  }
-  50%{
-    box-shadow:
-      0 2px 18px rgba(0,0,0,.8),
-      0 0 22px rgba(0,200,255,.55),
-      0 0 40px rgba(0,200,255,.35);
-  }
-  100%{
-    box-shadow:
-      0 2px 10px rgba(0,0,0,.6),
-      0 0 0 rgba(0,200,255,0);
-  }
+@keyframes hudIntro{
+  0%{ height:100vh; }
+  100%{ height:120px; }
 }
 
-.hud img{ height:28px; }
-.hud .legend{
-  margin-left:auto;
+.hud-inner{
+  width:100%;
+  height:120px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+}
+
+.hud img{ height:72px; }
+
+.legend{
+  position:absolute;
+  right:20px;
+  bottom:14px;
   font-size:12px;
   opacity:.9;
 }
 
-/* ===== BLUR GLASS ===== */
+/* ===== WRAPPER ===== */
 .wrapper{
-  margin-top:90px;
+  margin-top:150px;
   display:flex;
   flex-wrap:wrap;
   gap:40px;
   justify-content:center;
   padding:30px;
-
-  background:rgba(0,0,0,.22);
-  backdrop-filter:blur(2px);
-  border-radius:14px;
-  margin-left:40px;
-  margin-right:40px;
 }
 
-/* ===== GRID ===== */
+/* ===== PLAYER ===== */
 .player{ text-align:center; }
 
 .player h3{
@@ -90,12 +81,18 @@ body{
     0 0 14px rgba(0,200,255,.25);
 }
 
+/* ===== GRID ===== */
 .grid{
   display:grid;
   grid-template-columns:repeat(10,64px);
   gap:2px;
+  padding:12px;
+  background:rgba(0,0,0,.35);
+  backdrop-filter:blur(4px);
+  border-radius:10px;
 }
 
+/* ===== CELL ===== */
 .cell{
   width:64px;
   height:64px;
@@ -111,19 +108,26 @@ body{
 .cell img{
   max-width:90%;
   max-height:90%;
-  transition:filter .2s, opacity .2s;
+  pointer-events:none;
 }
 
-.cell.checked{
-  background-color:rgba(0,0,0,.65);
+.cell.checked{ opacity:.35; }
+
+.cell:not(.checked)::before{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  border-radius:4px;
+  box-shadow:0 0 10px rgba(255,40,40,.9);
+  animation:redGlow 1.4s infinite alternate;
+  pointer-events:none;
 }
 
-.cell.checked img{
-  filter:grayscale(1);
-  opacity:.45;
+@keyframes redGlow{
+  from{ opacity:.4; }
+  to{ opacity:1; }
 }
 
-/* ===== TOOLTIP ===== */
 .cell::after{
   content:attr(data-name);
   position:absolute;
@@ -151,24 +155,42 @@ body{
 </head>
 <body>
 
+<!-- ===== AUDIO INTRO (ROOT GITHUB PAGES) ===== -->
+<audio id="hud-audio" src="/WelcomeSperanza.mp3"></audio>
+
 <div class="hud">
-  <img src="Logo_Arc_Raiders.png" alt="Arc Raiders">
-  <div class="legend">▢ libre · ▣ déjà pris</div>
+  <div class="hud-inner">
+    <img src="Logo_Arc_Raiders.png" alt="Arc Raiders">
+    <div class="legend">▢ libre · ▣ déjà pris</div>
+  </div>
 </div>
 
 <div class="wrapper" id="app"></div>
 
 <script>
-/* ===== SUPABASE ===== */
+/* ===== AUTOPLAY ONCE PER SESSION ===== */
+(() => {
+  if (sessionStorage.getItem("introPlayed")) return;
+
+  const audio = document.getElementById("hud-audio");
+
+  const playOnce = () => {
+    audio.play().catch(()=>{});
+    sessionStorage.setItem("introPlayed", "1");
+    window.removeEventListener("click", playOnce);
+  };
+
+  window.addEventListener("click", playOnce, { once:true });
+})();
+
 const sb = supabase.createClient(
   "https://mrgmnarzxuursfftqwjy.supabase.co",
   "sb_publishable_NRM0OYkc4C5rjUxGKruR6A_y-iKPNRm"
 );
 
-/* ===== DATA ===== */
-const players = ["REGULUS","FOX","Cress","Noname"];
+const players=["REGULUS","FOX","Cress","Noname"];
 
-const blueprints = [
+const blueprints=[
  ["80px-Angled_Grip_II.png.webp","80px-Angled_Grip_III.png.webp","80px-Anvil-Level1.png.webp","80px-Aphelion.png.webp","80px-Barricade_Kit.png.webp","80px-Bettina.png.webp","80px-Blaze_Grenade.png.webp","80px-Blue_Light_Stick.png.webp","80px-Bobcat-Level1.png.webp","80px-Burletta-Level1.png.webp"],
  ["80px-Defibrillator.png.webp","80px-Equalizer.png.webp","80px-Explosive_Mine.png.webp","80px-Extended_Barrel.png.webp","80px-Combat_Mk._3_(Aggressive).png.webp","80px-Combat_Mk._3_(Flanking).png.webp","80px-Compensator_II.png.webp","80px-Compensator_III.png.webp","80px-Complex_Gun_Parts.png.webp","80px-Deadline.png.webp"],
  ["80px-Extended_Light_Mag_II.png.webp","80px-Extended_Light_Mag_III.png.webp","80px-Extended_Medium_Mag_II.png.webp","80px-Extended_Medium_Mag_III.png.webp","80px-Extended_Shotgun_Mag_II.png.webp","80px-Extended_Shotgun_Mag_III.png.webp","80px-Fireworks_Box.png.webp","80px-Gas_Mine.png.webp","80px-Green_Light_Stick.png.webp","80px-Heavy_Gun_Parts.png.webp"],
@@ -179,23 +201,17 @@ const blueprints = [
  ["80px-Wolfpack.png.webp","80px-Yellow_Light_Stick.png.webp",null,null,null,null,null,null,null,null]
 ];
 
-const names = blueprints.map(r =>
-  r.map(f => f ? f.replace("80px-","").replace(".png.webp","").replaceAll("_"," ") : "")
-);
+const names=blueprints.map(r=>r.map(f=>f?f.replace("80px-","").replace(".png.webp","").replaceAll("_"," "):""));
 
-/* ===== DB ===== */
 async function loadAll(){
-  const {data,error}=await sb.from("cases").select("*");
-  console.log("LOAD ALL",data,error);
+  const {data}=await sb.from("cases").select("*");
   return data||[];
 }
 
 async function save(player,cell,checked){
-  console.log("SAVE",player,cell,checked);
   await sb.from("cases").upsert({player,cell,checked},{onConflict:"player,cell"});
 }
 
-/* ===== UI ===== */
 (async()=>{
   const saved=await loadAll();
   const map={};
@@ -220,19 +236,17 @@ async function save(player,cell,checked){
         cell.dataset.cell=idx;
         cell.dataset.name=names[r][c];
 
-        const imgName=blueprints[r][c];
-        if(imgName){
+        if(blueprints[r][c]){
           const img=document.createElement("img");
-          img.src="imagesschémasAcRaiders/"+imgName;
+          img.src="imagesschémasAcRaiders/"+blueprints[r][c];
           cell.appendChild(img);
         }
 
         let checked=map[`${player}-${idx}`]||false;
-        if(checked) cell.classList.add("checked");
+        cell.classList.toggle("checked",checked);
 
         cell.onclick=async()=>{
           checked=!checked;
-          console.log("CLICK",player,idx,checked);
           cell.classList.toggle("checked",checked);
           await save(player,idx,checked);
         };
@@ -244,7 +258,6 @@ async function save(player,cell,checked){
 
   sb.channel("cases-realtime")
     .on("postgres_changes",{event:"*",schema:"public",table:"cases"},p=>{
-      console.log("REALTIME",p.new);
       document
         .querySelectorAll(`.cell[data-player="${p.new.player}"][data-cell="${p.new.cell}"]`)
         .forEach(c=>c.classList.toggle("checked",p.new.checked));
