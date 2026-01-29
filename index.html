@@ -4,25 +4,91 @@
 <meta charset="UTF-8">
 <title>Arc Raiders – Blueprints</title>
 
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+
 <style>
 body{
+  margin:0;
   background:
-    linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,.55)),
-    url("arcraiders_bg.png");
+    linear-gradient(rgba(0,0,0,.45), rgba(0,0,0,.45)),
+    url("arcraiders_bg2.png");
   background-size:cover;
   background-position:center;
   background-attachment:fixed;
-
   color:white;
   font-family:sans-serif;
+}
+
+/* ===== HUD ===== */
+.hud{
+  position:fixed;
+  top:0; left:0; right:0;
+  height:56px;
+  background:rgba(8,12,18,.75);
+  backdrop-filter:blur(6px);
+  display:flex;
+  align-items:center;
+  padding:0 20px;
+  z-index:100;
+
+  animation:hudPulse 3.5s ease-in-out infinite;
+}
+
+@keyframes hudPulse{
+  0%{
+    box-shadow:
+      0 2px 10px rgba(0,0,0,.6),
+      0 0 0 rgba(0,200,255,0);
+  }
+  50%{
+    box-shadow:
+      0 2px 18px rgba(0,0,0,.8),
+      0 0 22px rgba(0,200,255,.55),
+      0 0 40px rgba(0,200,255,.35);
+  }
+  100%{
+    box-shadow:
+      0 2px 10px rgba(0,0,0,.6),
+      0 0 0 rgba(0,200,255,0);
+  }
+}
+
+.hud img{ height:28px; }
+.hud .legend{
+  margin-left:auto;
+  font-size:12px;
+  opacity:.9;
+}
+
+/* ===== BLUR GLASS ===== */
+.wrapper{
+  margin-top:90px;
   display:flex;
   flex-wrap:wrap;
   gap:40px;
   justify-content:center;
   padding:30px;
+
+  background:rgba(0,0,0,.22);
+  backdrop-filter:blur(2px);
+  border-radius:14px;
+  margin-left:40px;
+  margin-right:40px;
 }
 
+/* ===== GRID ===== */
 .player{ text-align:center; }
+
+.player h3{
+  font-family:"Orbitron", sans-serif;
+  letter-spacing:1.5px;
+  font-size:16px;
+  margin-bottom:12px;
+  color:#e6faff;
+  text-shadow:
+    0 0 6px rgba(0,200,255,.45),
+    0 0 14px rgba(0,200,255,.25);
+}
 
 .grid{
   display:grid;
@@ -49,7 +115,7 @@ body{
 }
 
 .cell.checked{
-  background-color:rgba(0,0,0,.6);
+  background-color:rgba(0,0,0,.65);
 }
 
 .cell.checked img{
@@ -57,7 +123,7 @@ body{
   opacity:.45;
 }
 
-/* ===== TOOLTIP FIX ===== */
+/* ===== TOOLTIP ===== */
 .cell::after{
   content:attr(data-name);
   position:absolute;
@@ -77,14 +143,20 @@ body{
   z-index:10;
 }
 
-.cell:hover::after{
-  opacity:1;
-}
+.cell:hover::after{ opacity:1; }
+.cell[data-name=""]::after{ display:none; }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+
+<div class="hud">
+  <img src="Logo_Arc_Raiders.png" alt="Arc Raiders">
+  <div class="legend">▢ libre · ▣ déjà pris</div>
+</div>
+
+<div class="wrapper" id="app"></div>
 
 <script>
 /* ===== SUPABASE ===== */
@@ -108,9 +180,7 @@ const blueprints = [
 ];
 
 const names = blueprints.map(r =>
-  r.map(f =>
-    f ? f.replace("80px-","").replace(".png.webp","").replaceAll("_"," ") : ""
-  )
+  r.map(f => f ? f.replace("80px-","").replace(".png.webp","").replaceAll("_"," ") : "")
 );
 
 /* ===== DB ===== */
@@ -131,18 +201,19 @@ async function save(player,cell,checked){
   const map={};
   saved.forEach(r=>map[`${r.player}-${r.cell}`]=r.checked);
 
+  const app=document.getElementById("app");
+
   players.forEach(player=>{
     const box=document.createElement("div");
     box.className="player";
     box.innerHTML=`<h3>${player}</h3><div class="grid"></div>`;
-    document.body.appendChild(box);
+    app.appendChild(box);
 
     const grid=box.querySelector(".grid");
 
     for(let r=0;r<blueprints.length;r++){
       for(let c=0;c<10;c++){
         const idx=r*10+c;
-
         const cell=document.createElement("div");
         cell.className="cell";
         cell.dataset.player=player;
@@ -172,15 +243,12 @@ async function save(player,cell,checked){
   });
 
   sb.channel("cases-realtime")
-    .on("postgres_changes",
-      {event:"*",schema:"public",table:"cases"},
-      p=>{
-        console.log("REALTIME",p.new);
-        document
-          .querySelectorAll(`.cell[data-player="${p.new.player}"][data-cell="${p.new.cell}"]`)
-          .forEach(c=>c.classList.toggle("checked",p.new.checked));
-      }
-    )
+    .on("postgres_changes",{event:"*",schema:"public",table:"cases"},p=>{
+      console.log("REALTIME",p.new);
+      document
+        .querySelectorAll(`.cell[data-player="${p.new.player}"][data-cell="${p.new.cell}"]`)
+        .forEach(c=>c.classList.toggle("checked",p.new.checked));
+    })
     .subscribe();
 })();
 </script>
