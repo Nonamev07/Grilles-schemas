@@ -5,11 +5,10 @@
 <title>Arc Raiders – Blueprints</title>
 
 <style>
-/* ===== FOND ARC RAIDERS ===== */
-body {
+body{
   background:
     linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,.55)),
-    url("https://4kwallpapers.com/images/walls/thumbs_3t/23576.jpg");
+    url("arcraiders_bg.png");
   background-size:cover;
   background-position:center;
   background-attachment:fixed;
@@ -23,15 +22,15 @@ body {
   padding:30px;
 }
 
-.player { text-align:center; }
+.player{ text-align:center; }
 
-.grid {
+.grid{
   display:grid;
-  grid-template-columns: repeat(10, 64px);
+  grid-template-columns:repeat(10,64px);
   gap:2px;
 }
 
-.cell {
+.cell{
   width:64px;
   height:64px;
   background-image:url("imagesschémasAcRaiders/100px-UI_Blueprint_background.png.webp");
@@ -40,44 +39,45 @@ body {
   align-items:center;
   justify-content:center;
   cursor:pointer;
-  position:relative;
+  transition:filter .2s, background-color .2s;
 }
 
-.cell img {
+.cell img{
   max-width:90%;
   max-height:90%;
-  z-index:1;
+  transition:filter .2s, opacity .2s;
 }
 
-/* ===== CASE COCHÉE ===== */
-.cell.checked::after {
-  content:"";
-  position:absolute;
-  inset:0;
-  background:rgba(0,0,0,0.6);
-  z-index:2;
+.cell.checked{
+  background-color:rgba(0,0,0,.6);
+  filter:grayscale(1);
 }
 
-/* ===== TOOLTIP ===== */
-.tooltip {
+.cell.checked img{
+  filter:grayscale(1);
+  opacity:.45;
+}
+
+/* Tooltip */
+.cell::after{
+  content:attr(data-name);
   position:absolute;
   bottom:72px;
-  left:50%;
-  transform:translateX(-50%);
   background:#111;
-  border:1px solid #666;
-  padding:6px 10px;
-  font-size:12px;
   color:#fff;
+  font-size:11px;
+  padding:4px 6px;
+  border-radius:4px;
   white-space:nowrap;
-  pointer-events:none;
   opacity:0;
-  transition:opacity .15s;
-  z-index:5;
+  pointer-events:none;
+  transform:translateY(5px);
+  transition:.15s;
 }
 
-.cell:hover .tooltip {
+.cell:hover::after{
   opacity:1;
+  transform:translateY(0);
 }
 </style>
 
@@ -87,102 +87,90 @@ body {
 
 <script>
 /* ===== SUPABASE ===== */
-const SUPABASE_URL = "https://mrgmnarzxuursfftqwjy.supabase.co";
-const SUPABASE_KEY = "sb_publishable_NRM0OYkc4C5rjUxGKruR6A_y-iKPNRm";
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const sb = supabase.createClient(
+  "https://mrgmnarzxuursfftqwjy.supabase.co",
+  "sb_publishable_NRM0OYkc4C5rjUxGKruR6A_y-iKPNRm"
+);
 
 /* ===== DATA ===== */
 const players = ["REGULUS","FOX","Cress","Noname"];
 
 const blueprints = [
-  ["80px-Angled_Grip_II.png.webp","80px-Angled_Grip_III.png.webp","80px-Anvil-Level1.png.webp","80px-Aphelion.png.webp","80px-Barricade_Kit.png.webp","80px-Bettina.png.webp","80px-Blaze_Grenade.png.webp","80px-Blue_Light_Stick.png.webp","80px-Bobcat-Level1.png.webp","80px-Burletta-Level1.png.webp"],
-  ["80px-Defibrillator.png.webp","80px-Equalizer.png.webp","80px-Explosive_Mine.png.webp","80px-Extended_Barrel.png.webp","80px-Combat_Mk._3_(Aggressive).png.webp","80px-Combat_Mk._3_(Flanking).png.webp","80px-Compensator_II.png.webp","80px-Compensator_III.png.webp","80px-Complex_Gun_Parts.png.webp","80px-Deadline.png.webp"],
-  ["80px-Extended_Light_Mag_II.png.webp","80px-Extended_Light_Mag_III.png.webp","80px-Extended_Medium_Mag_II.png.webp","80px-Extended_Medium_Mag_III.png.webp","80px-Extended_Shotgun_Mag_II.png.webp","80px-Extended_Shotgun_Mag_III.png.webp","80px-Fireworks_Box.png.webp","80px-Gas_Mine.png.webp","80px-Green_Light_Stick.png.webp","80px-Heavy_Gun_Parts.png.webp"],
-  ["80px-Jolt_Mine.png.webp","80px-Jupiter.png.webp","80px-Light_Gun_Parts.png.webp","80px-Lightweight_Stock.png.webp","80px-Looting_Mk._3_(Survivor).png.webp","80px-Lure_Grenade.png.webp","80px-Medium_Gun_Parts.png.webp","80px-Muzzle_Brake_II.png.webp","80px-Hullcracker-Level1.png.webp","80px-Il_Toro-Level1.png.webp"],
-  ["80px-Muzzle_Brake_III.png.webp","80px-Osprey-Level1.png.webp","80px-Padded_Stock.png.webp","80px-Pulse_Mine.png.webp","80px-Red_Light_Stick.png.webp","80px-Remote_Raider_Flare.png.webp","80px-Seeker_Grenade.png.webp","80px-Shotgun_Choke_II.png.webp","80px-Shotgun_Choke_III.png.webp","80px-Shotgun_Silencer.png.webp"],
-  ["80px-Showstopper.png.webp","80px-Silencer_I.png.webp","80px-Silencer_II.png.webp","80px-Smoke_Grenade.png.webp","80px-Snap_Hook.png.webp","80px-Stable_Stock_II.png.webp","80px-Stable_Stock_III.png.webp","80px-Tactical_Mk._3_(Defensive).png.webp","80px-Tactical_Mk._3_(Healing).png.webp","80px-Tagging_Grenade.png.webp"],
-  ["80px-Tempest-Level1.png.webp","80px-Torrente-Level1.png.webp","80px-Trailblazer.png.webp","80px-Trigger_Nade.png.webp","80px-Venator-Level1.png.webp","80px-Vertical_Grip_II.png.webp","80px-Vertical_Grip_III.png.webp","80px-Vita_Shot.png.webp","80px-Vita_Spray.png.webp","80px-Vulcano-Level1.png.webp"],
-  ["80px-Wolfpack.png.webp","80px-Yellow_Light_Stick.png.webp",null,null,null,null,null,null,null,null]
+ ["80px-Angled_Grip_II.png.webp","80px-Angled_Grip_III.png.webp","80px-Anvil-Level1.png.webp","80px-Aphelion.png.webp","80px-Barricade_Kit.png.webp","80px-Bettina.png.webp","80px-Blaze_Grenade.png.webp","80px-Blue_Light_Stick.png.webp","80px-Bobcat-Level1.png.webp","80px-Burletta-Level1.png.webp"],
+ ["80px-Defibrillator.png.webp","80px-Equalizer.png.webp","80px-Explosive_Mine.png.webp","80px-Extended_Barrel.png.webp","80px-Combat_Mk._3_(Aggressive).png.webp","80px-Combat_Mk._3_(Flanking).png.webp","80px-Compensator_II.png.webp","80px-Compensator_III.png.webp","80px-Complex_Gun_Parts.png.webp","80px-Deadline.png.webp"],
+ ["80px-Extended_Light_Mag_II.png.webp","80px-Extended_Light_Mag_III.png.webp","80px-Extended_Medium_Mag_II.png.webp","80px-Extended_Medium_Mag_III.png.webp","80px-Extended_Shotgun_Mag_II.png.webp","80px-Extended_Shotgun_Mag_III.png.webp","80px-Fireworks_Box.png.webp","80px-Gas_Mine.png.webp","80px-Green_Light_Stick.png.webp","80px-Heavy_Gun_Parts.png.webp"],
+ ["80px-Jolt_Mine.png.webp","80px-Jupiter.png.webp","80px-Light_Gun_Parts.png.webp","80px-Lightweight_Stock.png.webp","80px-Looting_Mk._3_(Survivor).png.webp","80px-Lure_Grenade.png.webp","80px-Medium_Gun_Parts.png.webp","80px-Muzzle_Brake_II.png.webp","80px-Hullcracker-Level1.png.webp","80px-Il_Toro-Level1.png.webp"],
+ ["80px-Muzzle_Brake_III.png.webp","80px-Osprey-Level1.png.webp","80px-Padded_Stock.png.webp","80px-Pulse_Mine.png.webp","80px-Red_Light_Stick.png.webp","80px-Remote_Raider_Flare.png.webp","80px-Seeker_Grenade.png.webp","80px-Shotgun_Choke_II.png.webp","80px-Shotgun_Choke_III.png.webp","80px-Shotgun_Silencer.png.webp"],
+ ["80px-Showstopper.png.webp","80px-Silencer_I.png.webp","80px-Silencer_II.png.webp","80px-Smoke_Grenade.png.webp","80px-Snap_Hook.png.webp","80px-Stable_Stock_II.png.webp","80px-Stable_Stock_III.png.webp","80px-Tactical_Mk._3_(Defensive).png.webp","80px-Tactical_Mk._3_(Healing).png.webp","80px-Tagging_Grenade.png.webp"],
+ ["80px-Tempest-Level1.png.webp","80px-Torrente-Level1.png.webp","80px-Trailblazer.png.webp","80px-Trigger_Nade.png.webp","80px-Venator-Level1.png.webp","80px-Vertical_Grip_II.png.webp","80px-Vertical_Grip_III.png.webp","80px-Vita_Shot.png.webp","80px-Vita_Spray.png.webp","80px-Vulcano-Level1.png.webp"],
+ ["80px-Wolfpack.png.webp","80px-Yellow_Light_Stick.png.webp",null,null,null,null,null,null,null,null]
 ];
 
-const names = blueprints.flat().map(n =>
-  n ? n.replace("80px-","").replace(".png.webp","").replace(/_/g," ") : null
-);
+const names = blueprints.map(r=>r.map(f=>f?f.replace("80px-","").replace(".png.webp","").replaceAll("_"," "):""));
 
 /* ===== DB ===== */
-async function loadAll() {
-  const { data, error } = await sb.from("cases").select("*");
-  console.log("LOAD ALL", data, error);
-  return data || [];
+async function loadAll(){
+  const {data,error}=await sb.from("cases").select("*");
+  console.log("LOAD ALL",data,error);
+  return data||[];
 }
 
-async function save(player, cell, checked) {
-  console.log("SAVE", player, cell, checked);
-  const { error } = await sb.from("cases").upsert(
-    { player, cell, checked },
-    { onConflict:"player,cell" }
-  );
-  if (error) console.error("SAVE ERROR", error);
+async function save(player,cell,checked){
+  console.log("SAVE",player,cell,checked);
+  await sb.from("cases").upsert({player,cell,checked},{onConflict:"player,cell"});
 }
 
 /* ===== UI ===== */
-(async () => {
-  const saved = await loadAll();
-  const map = {};
-  saved.forEach(r => map[`${r.player}-${r.cell}`] = r.checked);
+(async()=>{
+  const saved=await loadAll();
+  const map={};
+  saved.forEach(r=>map[`${r.player}-${r.cell}`]=r.checked);
 
-  players.forEach(player => {
-    const box = document.createElement("div");
-    box.className = "player";
-    box.innerHTML = `<h3>${player}</h3><div class="grid"></div>`;
+  players.forEach(player=>{
+    const box=document.createElement("div");
+    box.className="player";
+    box.innerHTML=`<h3>${player}</h3><div class="grid"></div>`;
     document.body.appendChild(box);
+    const grid=box.querySelector(".grid");
 
-    const grid = box.querySelector(".grid");
+    for(let r=0;r<blueprints.length;r++){
+      for(let c=0;c<10;c++){
+        const idx=r*10+c;
+        const cell=document.createElement("div");
+        cell.className="cell";
+        cell.dataset.player=player;
+        cell.dataset.cell=idx;
+        cell.dataset.name=names[r][c]||"";
 
-    blueprints.flat().forEach((imgName, i) => {
-      const cellDiv = document.createElement("div");
-      cellDiv.className = "cell";
-      cellDiv.dataset.player = player;
-      cellDiv.dataset.cell = i;
+        const img=blueprints[r][c];
+        if(img){
+          const i=document.createElement("img");
+          i.src="imagesschémasAcRaiders/"+img;
+          cell.appendChild(i);
+        }
 
-      if (imgName) {
-        const img = document.createElement("img");
-        img.src = "imagesschémasAcRaiders/" + imgName;
-        cellDiv.appendChild(img);
+        let checked=map[`${player}-${idx}`]||false;
+        if(checked) cell.classList.add("checked");
 
-        const tip = document.createElement("div");
-        tip.className = "tooltip";
-        tip.textContent = names[i];
-        cellDiv.appendChild(tip);
+        cell.onclick=async()=>{
+          checked=!checked;
+          console.log("CLICK",player,idx,checked);
+          cell.classList.toggle("checked",checked);
+          await save(player,idx,checked);
+        };
+
+        grid.appendChild(cell);
       }
-
-      let checked = map[`${player}-${i}`] || false;
-      cellDiv.classList.toggle("checked", checked);
-
-      cellDiv.onclick = async () => {
-        checked = !checked;
-        console.log("CLICK", player, i, checked);
-        cellDiv.classList.toggle("checked", checked);
-        await save(player, i, checked);
-      };
-
-      grid.appendChild(cellDiv);
-    });
+    }
   });
 
-  /* ===== REALTIME ===== */
-  sb.channel("cases-realtime")
-    .on(
-      "postgres_changes",
-      { event:"*", schema:"public", table:"cases" },
-      payload => {
-        console.log("REALTIME", payload.new);
-        const { player, cell, checked } = payload.new;
-        document
-          .querySelectorAll(`.cell[data-player="${player}"][data-cell="${cell}"]`)
-          .forEach(c => c.classList.toggle("checked", checked));
-      }
-    )
+  sb.channel("cases-rt")
+    .on("postgres_changes",{event:"*",schema:"public",table:"cases"},p=>{
+      console.log("REALTIME",p.new);
+      document
+        .querySelectorAll(`.cell[data-player="${p.new.player}"][data-cell="${p.new.cell}"]`)
+        .forEach(c=>c.classList.toggle("checked",p.new.checked));
+    })
     .subscribe();
 })();
 </script>
