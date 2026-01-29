@@ -17,6 +17,42 @@ body{
   background-attachment:fixed;
   color:white;
   font-family:sans-serif;
+  overflow:hidden;
+}
+
+/* ===== INTRO ===== */
+#intro{
+  position:fixed;
+  inset:0;
+  background:
+    linear-gradient(rgba(0,0,0,.75), rgba(0,0,0,.75)),
+    url("arcraiders_bg2.png");
+  background-size:cover;
+  background-position:center;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:2000;
+}
+
+#intro button{
+  font-family:"Orbitron", sans-serif;
+  font-size:20px;
+  padding:16px 40px;
+  background:rgba(0,0,0,.6);
+  border:1px solid rgba(0,200,255,.6);
+  color:#e6faff;
+  letter-spacing:2px;
+  cursor:pointer;
+  box-shadow:
+    0 0 10px rgba(0,200,255,.5),
+    inset 0 0 10px rgba(0,200,255,.3);
+}
+
+#intro button:hover{
+  box-shadow:
+    0 0 18px rgba(0,200,255,.9),
+    inset 0 0 14px rgba(0,200,255,.5);
 }
 
 /* ===== HUD ===== */
@@ -155,13 +191,11 @@ body{
 </head>
 <body>
 
-<!-- ===== AUDIO INTRO (AUTOPLAY AU CHARGEMENT) ===== -->
-<audio
-  id="hud-audio"
-  src="/WelcomeSperanza.mp3"
-  autoplay
-  playsinline
-></audio>
+<audio id="hud-audio" src="/WelcomeSperanza.mp3" playsinline></audio>
+
+<div id="intro">
+  <button id="enter">ENTRER</button>
+</div>
 
 <div class="hud">
   <div class="hud-inner">
@@ -173,15 +207,25 @@ body{
 <div class="wrapper" id="app"></div>
 
 <script>
-/* ===== LECTURE UNE FOIS PAR SESSION ===== */
+/* ===== INTRO + AUDIO ===== */
 (() => {
-  if (sessionStorage.getItem("introPlayed")) return;
+  if (sessionStorage.getItem("introPlayed")) {
+    document.getElementById("intro").remove();
+    document.body.style.overflow="auto";
+    return;
+  }
+
   const audio = document.getElementById("hud-audio");
-  audio.currentTime = 0;
-  audio.play().catch(()=>{});
-  sessionStorage.setItem("introPlayed","1");
+  document.getElementById("enter").onclick = () => {
+    audio.currentTime = 0;
+    audio.play().catch(()=>{});
+    sessionStorage.setItem("introPlayed","1");
+    document.getElementById("intro").remove();
+    document.body.style.overflow="auto";
+  };
 })();
 
+/* ===== SUPABASE ===== */
 const sb = supabase.createClient(
   "https://mrgmnarzxuursfftqwjy.supabase.co",
   "sb_publishable_NRM0OYkc4C5rjUxGKruR6A_y-iKPNRm"
