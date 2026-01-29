@@ -44,6 +44,9 @@ body{
   color:#e6faff;
   letter-spacing:2px;
   cursor:pointer;
+  box-shadow:
+    0 0 10px rgba(0,200,255,.5),
+    inset 0 0 10px rgba(0,200,255,.3);
 }
 
 /* ===== HUD ===== */
@@ -106,6 +109,9 @@ body{
   font-size:16px;
   margin-bottom:12px;
   color:#e6faff;
+  text-shadow:
+    0 0 6px rgba(0,200,255,.45),
+    0 0 14px rgba(0,200,255,.25);
 }
 
 /* ===== GRID ===== */
@@ -138,7 +144,48 @@ body{
   pointer-events:none;
 }
 
-.cell.checked{ opacity:.35; }
+.cell.checked{
+  opacity:.35;
+}
+
+/* ===== GLOW ROUGE ===== */
+.cell:not(.checked)::before{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  border-radius:4px;
+  box-shadow:0 0 10px rgba(255,40,40,.9);
+  animation:redGlow 1.4s infinite alternate;
+  pointer-events:none;
+}
+
+@keyframes redGlow{
+  from{ opacity:.4; }
+  to{ opacity:1; }
+}
+
+/* ===== TOOLTIP ===== */
+.cell::after{
+  content:attr(data-name);
+  position:absolute;
+  bottom:100%;
+  margin-bottom:6px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#111;
+  color:#fff;
+  font-size:11px;
+  padding:4px 6px;
+  border-radius:4px;
+  white-space:nowrap;
+  opacity:0;
+  pointer-events:none;
+  transition:.15s;
+  z-index:10;
+}
+
+.cell:hover::after{ opacity:1; }
+.cell[data-name=""]::after{ display:none; }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -161,7 +208,7 @@ body{
 <div class="wrapper" id="app"></div>
 
 <script>
-/* ===== INTRO ===== */
+/* ===== INTRO + AUDIO ===== */
 const intro = document.getElementById("intro");
 const hud = document.getElementById("hud");
 const audio = document.getElementById("hud-audio");
@@ -189,7 +236,7 @@ const sb = supabase.createClient(
 
 const players=["REGULUS","FOX","Cress","Noname"];
 
-const blueprints = [
+const blueprints=[
  ["80px-Angled_Grip_II.png.webp","80px-Angled_Grip_III.png.webp","80px-Anvil-Level1.png.webp","80px-Aphelion.png.webp","80px-Barricade_Kit.png.webp","80px-Bettina.png.webp","80px-Blaze_Grenade.png.webp","80px-Blue_Light_Stick.png.webp","80px-Bobcat-Level1.png.webp","80px-Burletta-Level1.png.webp"],
  ["80px-Defibrillator.png.webp","80px-Equalizer.png.webp","80px-Explosive_Mine.png.webp","80px-Extended_Barrel.png.webp","80px-Combat_Mk._3_(Aggressive).png.webp","80px-Combat_Mk._3_(Flanking).png.webp","80px-Compensator_II.png.webp","80px-Compensator_III.png.webp","80px-Complex_Gun_Parts.png.webp","80px-Deadline.png.webp"],
  ["80px-Extended_Light_Mag_II.png.webp","80px-Extended_Light_Mag_III.png.webp","80px-Extended_Medium_Mag_II.png.webp","80px-Extended_Medium_Mag_III.png.webp","80px-Extended_Shotgun_Mag_II.png.webp","80px-Extended_Shotgun_Mag_III.png.webp","80px-Fireworks_Box.png.webp","80px-Gas_Mine.png.webp","80px-Green_Light_Stick.png.webp","80px-Heavy_Gun_Parts.png.webp"],
