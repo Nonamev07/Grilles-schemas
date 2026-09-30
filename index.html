@@ -234,7 +234,7 @@ const sb = supabase.createClient(
   "sb_publishable_NRM0OYkc4C5rjUxGKruR6A_y-iKPNRm"
 );
 
-const players=["Loutre","Loutrovor"];
+const players=[{id:"REGULUS",name:"Loutre"},{id:"FOX",name:"Loutrovor"}];
 
 const blueprints=[
  ["80px-Angled_Grip_II.png.webp","80px-Angled_Grip_III.png.webp","80px-Anvil-Level1.png.webp","80px-Aphelion.png.webp","80px-Barricade_Kit.png.webp","80px-Bettina.png.webp","80px-Blaze_Grenade.png.webp","80px-Blue_Light_Stick.png.webp","80px-Bobcat-Level1.png.webp","80px-Burletta-Level1.png.webp"],
@@ -265,10 +265,10 @@ async function save(player,cell,checked){
 
   const app=document.getElementById("app");
 
-  players.forEach(player=>{
+  players.forEach(({id:player,name})=>{
     const box=document.createElement("div");
     box.className="player";
-    box.innerHTML=`<h3>${player}</h3><div class="grid"></div>`;
+    box.innerHTML=`<h3>${name}</h3><div class="grid"></div>`;
     app.appendChild(box);
 
     const grid=box.querySelector(".grid");
@@ -314,3 +314,4 @@ async function save(player,cell,checked){
 
 </body>
 </html>
+
