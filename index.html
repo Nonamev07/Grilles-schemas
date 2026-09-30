@@ -234,7 +234,7 @@ const sb = supabase.createClient(
   "sb_publishable_NRM0OYkc4C5rjUxGKruR6A_y-iKPNRm"
 );
 
-const players=[{id:"REGULUS",name:"Loutre"},{id:"FOX",name:"Loutrovor"}];
+const players=["Loutre","Loutrovor"];
 
 const blueprints=[
  ["80px-Angled_Grip_II.png.webp","80px-Angled_Grip_III.png.webp","80px-Anvil-Level1.png.webp","80px-Aphelion.png.webp","80px-Barricade_Kit.png.webp","80px-Bettina.png.webp","80px-Blaze_Grenade.png.webp","80px-Blue_Light_Stick.png.webp","80px-Bobcat-Level1.png.webp","80px-Burletta-Level1.png.webp"],
@@ -255,8 +255,7 @@ async function loadAll(){
 }
 
 async function save(player,cell,checked){
-  const {error}=await sb.from("cases").upsert({player,cell,checked},{onConflict:"player,cell"});
-  if(error) throw error;
+  await sb.from("cases").upsert({player,cell,checked},{onConflict:"player,cell"});
 }
 
 (async()=>{
@@ -266,10 +265,10 @@ async function save(player,cell,checked){
 
   const app=document.getElementById("app");
 
-  players.forEach(({id:player,name})=>{
+  players.forEach(player=>{
     const box=document.createElement("div");
     box.className="player";
-    box.innerHTML=`<h3>${name}</h3><div class="grid"></div>`;
+    box.innerHTML=`<h3>${player}</h3><div class="grid"></div>`;
     app.appendChild(box);
 
     const grid=box.querySelector(".grid");
@@ -293,16 +292,9 @@ async function save(player,cell,checked){
         cell.classList.toggle("checked",checked);
 
         cell.onclick=async()=>{
-          const previous=checked;
           checked=!checked;
           cell.classList.toggle("checked",checked);
-          try{
-            await save(player,idx,checked);
-          }catch(error){
-            checked=previous;
-            cell.classList.toggle("checked",checked);
-            alert("La sauvegarde a échoué : "+error.message);
-          }
+          await save(player,idx,checked);
         };
 
         grid.appendChild(cell);
