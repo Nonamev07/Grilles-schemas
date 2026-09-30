@@ -255,7 +255,8 @@ async function loadAll(){
 }
 
 async function save(player,cell,checked){
-  await sb.from("cases").upsert({player,cell,checked},{onConflict:"player,cell"});
+  const {error}=await sb.from("cases").upsert({player,cell,checked},{onConflict:"player,cell"});
+  if(error) throw error;
 }
 
 (async()=>{
@@ -292,9 +293,16 @@ async function save(player,cell,checked){
         cell.classList.toggle("checked",checked);
 
         cell.onclick=async()=>{
+          const previous=checked;
           checked=!checked;
           cell.classList.toggle("checked",checked);
-          await save(player,idx,checked);
+          try{
+            await save(player,idx,checked);
+          }catch(error){
+            checked=previous;
+            cell.classList.toggle("checked",checked);
+            alert("La sauvegarde a échoué : "+error.message);
+          }
         };
 
         grid.appendChild(cell);
@@ -314,4 +322,5 @@ async function save(player,cell,checked){
 
 </body>
 </html>
+
 
